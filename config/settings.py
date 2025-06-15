@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'django_filters',
+    'corsheaders',
 
     # Apps del sistema
     'pacientes',
@@ -49,9 +50,14 @@ INSTALLED_APPS = [
     'examenes',
     'resultados',
     'usuarios',
+    'sistema',
 ]
 
+
+
+
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',  # ← DEBE SER EL PRIMERO
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -59,6 +65,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -114,18 +121,14 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+# settings.py
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",  # Tu frontend Next.js
+]
 
-# Internationalization
-# https://docs.djangoproject.com/en/5.2/topics/i18n/
-
-LANGUAGE_CODE = 'en-us'
-
-TIME_ZONE = 'UTC'
-
-USE_I18N = True
-
-USE_TZ = True
-
+# Para desarrollo (TEMPORAL):
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
