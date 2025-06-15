@@ -1,0 +1,25 @@
+# Byte-compiled
+__pycache__/
+*.py[cod]
+*.sqlite3
+
+# Environment
+env/
+venv/
+
+# Django stuff
+*.log
+*.pot
+*.pyc
+
+# VSCode
+.vscode/
+
+# Node
+node_modules/
+
+# IDEs
+.idea/
+
+# Others
+*.zip
