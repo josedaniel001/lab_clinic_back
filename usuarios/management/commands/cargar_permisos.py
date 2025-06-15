@@ -1,5 +1,6 @@
 from django.core.management.base import BaseCommand
-from usuarios.models import PermisoPersonalizado
+from administracion.models.permisos import PermisoPersonalizado
+
 
 PERMISOS = [
     {"nombre": "ver_dashboard", "vista_modulo": "Dashboard", "activo":True},

@@ -1,18 +1,7 @@
-import django_filters
-from .models import Paciente
+from pacientes.models import Paciente
+from core.filters import BaseGenericFilterSet
 
-class PacienteFilter(django_filters.FilterSet):
-    nombre = django_filters.CharFilter(lookup_expr='icontains')
-    correo = django_filters.CharFilter(lookup_expr='icontains')
-    procedencia = django_filters.CharFilter(lookup_expr='icontains')
-
+class PacienteFilter(BaseGenericFilterSet):
     class Meta:
         model = Paciente
-        fields = {
-            'nombre': ['icontains'],
-            'edad': ['exact'],
-            'sexo': ['exact'],
-            'celular': ['icontains'],
-            'correo': ['icontains'],
-            'procedencia': ['icontains'],
-        }
+        fields = '__all__'
