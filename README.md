@@ -76,3 +76,12 @@ backend_lab/
 
 
 
+---
+
+
+```text
+Se agrego la BD y el POSTMAN Collection en archivo
+```markdown
+USAR WINRAR PARA DESCOMPRIMIR
+
+
