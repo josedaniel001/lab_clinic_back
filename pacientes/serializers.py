@@ -2,21 +2,40 @@ from rest_framework import serializers
 from .models import Paciente
 
 class PacienteSerializer(serializers.ModelSerializer):
+    ciudad = serializers.SerializerMethodField()
+
     class Meta:
         model = Paciente
-        fields = '__all__'
+        fields = [
+            'id',
+            'numero_documento',
+            'tipo_documento',
+            'nombres',
+            'apellidos',
+            'fecha_nacimiento',
+            'telefono',
+            'email',
+            'direccion',
+            'ciudad',
+            'genero',
+            'estado_civil',
+            'ocupacion',
+            'fecha_registro',
+            'activo',
+        ]
+
+    def get_ciudad(self, obj):
+        return obj.municipio.nombre if obj.municipio else None
 
     def validate(self, data):
-        nombre = data.get("nombre")
-        edad = data.get("edad")
-        sexo = data.get("sexo")
-        celular = data.get("celular")
+        nombres = data.get("nombres")
+        apellidos = data.get("apellidos")
+        numero_documento = data.get("numero_documento")
 
         if Paciente.objects.filter(
-            nombre__iexact=nombre.strip(),
-            edad=edad,
-            sexo=sexo,
-            celular=celular
+            numero_documento__iexact=numero_documento.strip(),
+            nombres__iexact=nombres.strip(),
+            apellidos__iexact=apellidos.strip()
         ).exists():
             raise serializers.ValidationError("Este paciente ya está registrado.")
 

@@ -64,7 +64,7 @@ python manage.py cargar_roles
 
 Asignar Permisos:
 python manage.py asignar_permisos_roles
-
+python manage.py runserver
 
 Estructura de Carpetas:
 backend_lab/
