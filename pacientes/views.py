@@ -7,7 +7,7 @@ from .serializers import PacienteSerializer
 from .filters import PacienteFilter
 
 class PacientePagination(PageNumberPagination):
-    page_size = 10
+    page_size = 5
     page_size_query_param = 'limit'
     page_query_param = 'page'
 
@@ -44,7 +44,22 @@ class PacienteViewSet(viewsets.ModelViewSet):
         paciente.save()
         return Response({"message": "Paciente eliminado exitosamente"}, status=status.HTTP_200_OK)
     
-    def update(self, instance, validated_data):
-        validated_data.pop('numero_documento', None)
-        validated_data.pop('tipo_documento', None)
-        return super().update(instance, validated_data)
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        
+        # Convertimos el request a un diccionario mutable
+        data = request.data.copy()
+
+        # Evitar que se actualicen estos campos
+        data.pop('numero_documento', None)
+        data.pop('tipo_documento', None)
+
+        serializer = self.get_serializer(instance, data=data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+
+        return Response({
+            "id": serializer.instance.id,
+            "message": "Paciente actualizado exitosamente"
+        })

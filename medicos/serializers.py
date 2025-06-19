@@ -1,25 +1,25 @@
 from rest_framework import serializers
-from .models import Paciente
+from .models import Medico
 
-class PacienteSerializer(serializers.ModelSerializer):
+class MedicoSerializer(serializers.ModelSerializer):
     ciudad = serializers.SerializerMethodField()
 
     class Meta:
-        model = Paciente
+        model = Medico
         fields = [
             'id',
             'numero_documento',
             'tipo_documento',
             'nombres',
-            'apellidos',
-            'fecha_nacimiento',
-            'telefono',
+            'apellidos',            
+            'telefono_consultorio',
+            'celular',
+            'codigo_laboratorio',
             'email',
-            'direccion',
+            'direccion_consultorio',
             'ciudad',
             'genero',
-            'estado_civil',
-            'ocupacion',
+            'especialidad_medica',            
             'fecha_registro',
             'activo',
         ]
@@ -32,12 +32,12 @@ class PacienteSerializer(serializers.ModelSerializer):
         nombres = (data.get("nombres") or "").strip()
         apellidos = (data.get("apellidos") or "").strip()
 
-        if Paciente.objects.filter(
+        if Medico.objects.filter(
             numero_documento__iexact=numero_documento,
             nombres__iexact=nombres,
             apellidos__iexact=apellidos
         ).exists():
-            raise serializers.ValidationError("Este paciente ya está registrado.")
+            raise serializers.ValidationError("Este medico/a ya está registrado.")
 
         return data
 

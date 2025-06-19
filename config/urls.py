@@ -13,7 +13,8 @@ urlpatterns = [
     path('api/localizacion/', include('localizacion.urls')),
     # Módulos de la aplicación
     path('api/usuarios/', include('usuarios.urls')),
-    path('api/pacientes/', include('pacientes.urls')),
+    path('api/', include('pacientes.urls')),
+    path('api/', include('medicos.urls')),
     path('api/', include('sistema.urls')),  # Aquí se encuentra /health/
     path('api/', include('administracion.urls')) # /api/roles/, /api/permisos/
 ]
