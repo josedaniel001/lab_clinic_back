@@ -44,3 +44,7 @@ class Paciente(models.Model):
     @property
     def ciudad(self):
         return self.municipio.nombre if self.municipio else None
+    
+    @property
+    def nombre_completo(self):
+        return f"{self.nombres} {self.apellidos}"

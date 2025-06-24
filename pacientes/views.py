@@ -7,9 +7,10 @@ from .serializers import PacienteSerializer
 from .filters import PacienteFilter
 
 class PacientePagination(PageNumberPagination):
-    page_size = 5
+    page_size = 10000
     page_size_query_param = 'limit'
     page_query_param = 'page'
+    max_page_size = 10000
 
 class PacienteViewSet(viewsets.ModelViewSet):
     queryset = Paciente.objects.all().order_by('-fecha_registro')

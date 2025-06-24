@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'sistema',
     'administracion',
     'localizacion',
+    'ordenes',
 ]
 
 

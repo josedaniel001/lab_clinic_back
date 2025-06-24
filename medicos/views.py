@@ -7,9 +7,10 @@ from .serializers import MedicoSerializer
 from .filters import MedicoFilter
 
 class MedicoPagination(PageNumberPagination):
-    page_size = 5
+    page_size = 10000
     page_size_query_param = 'limit'
     page_query_param = 'page'
+    max_page_size = 10000
 
 class MedicoViewSet(viewsets.ModelViewSet):
     queryset = Medico.objects.all().order_by('-fecha_registro')
