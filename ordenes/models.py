@@ -10,6 +10,7 @@ class Orden(models.Model):
         ('VALIDADO', 'Validado'),
         ('CANCELADO', 'Cancelado'),
         ('ENTREGADO', 'Entregado'),
+        ('EN PROCESO', 'Procesando'),
     ]
 
     codigo = models.CharField(max_length=20, unique=True)
@@ -31,7 +32,7 @@ class DetalleOrden(models.Model):
     orden = models.ForeignKey(Orden, on_delete=models.CASCADE)
     examen = models.ForeignKey(Examen, on_delete=models.CASCADE)
     observaciones = models.TextField(blank=True, null=True)
-    resultado = models.TextField(blank=True, null=True)
+    resultado_pdf  = models.TextField(blank=True, null=True)
     estado = models.CharField(max_length=20, default='Pendiente')
 
     def __str__(self):
