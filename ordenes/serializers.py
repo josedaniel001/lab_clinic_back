@@ -30,7 +30,7 @@ class OrdenSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'codigo', 'paciente', 'paciente_nombre',
             'medico', 'medico_nombre', 'fecha', 'hora',
-            'estado', 'detalles', 'total_examenes', 'examenes'
+            'estado', 'detalles', 'total_examenes', 'examenes','prioridad'
         ]
 
     def create(self, validated_data):

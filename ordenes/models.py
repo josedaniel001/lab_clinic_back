@@ -12,6 +12,12 @@ class Orden(models.Model):
         ('ENTREGADO', 'Entregado'),
         ('EN PROCESO', 'Procesando'),
     ]
+    
+    PRIORIDAD_CHOICES = [
+        ('ALTA', 'Alta'),
+        ('MEDIA', 'Media'),
+        ('NORMAL', 'Normal'),        
+    ]
 
     codigo = models.CharField(max_length=20, unique=True)
     paciente = models.ForeignKey(Paciente, on_delete=models.CASCADE, related_name="ordenes")
@@ -20,7 +26,7 @@ class Orden(models.Model):
     hora = models.TimeField(default=timezone.now)
     estado = models.CharField(max_length=20, choices=ESTADO_CHOICES, default='PENDIENTE')
     examenes = models.ManyToManyField(Examen, through='DetalleOrden', related_name='ordenes')
-
+    prioridad= models.CharField(max_length=40, choices=PRIORIDAD_CHOICES, default='NORMAL')
     def __str__(self):
         return f"{self.codigo} - {self.paciente}"
 
