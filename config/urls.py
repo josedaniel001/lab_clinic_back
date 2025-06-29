@@ -1,7 +1,10 @@
 from django.contrib import admin
 from django.urls import path, include
+from django.conf import settings
+from django.conf.urls.static import static
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from usuarios.views import PerfilUsuarioAPIView
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -21,3 +24,5 @@ urlpatterns = [
     path('api/', include('sistema.urls')),  # Aquí se encuentra /health/
     path('api/', include('administracion.urls')) # /api/roles/, /api/permisos/
 ]
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
