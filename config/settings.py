@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     'administracion',
     'localizacion',
     'ordenes',
+    'banco_sangre',
 ]
 
 

@@ -2,7 +2,9 @@ from django.db import models
 from pacientes.models import Paciente
 from medicos.models import Medico
 from examenes.models import Examen
+
 from django.utils import timezone
+from django.core.exceptions import ValidationError
 
 class Orden(models.Model):
     ESTADO_CHOICES = [
@@ -20,7 +22,20 @@ class Orden(models.Model):
     ]
 
     codigo = models.CharField(max_length=20, unique=True)
-    paciente = models.ForeignKey(Paciente, on_delete=models.CASCADE, related_name="ordenes")
+    paciente = models.ForeignKey(
+    Paciente, 
+    on_delete=models.CASCADE, 
+    related_name="ordenes",
+    null=True,  # <- Permite NULL en la DB
+    blank=True  # <- Permite dejarlo vacío en formularios/admin
+    )
+    donante = models.ForeignKey(
+       'banco_sangre.Donante', 
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="ordenes"
+    )
     medico = models.ForeignKey(Medico, on_delete=models.SET_NULL, null=True, related_name="ordenes")
     fecha = models.DateField(default=timezone.now)
     hora = models.TimeField(default=timezone.now)
@@ -32,7 +47,12 @@ class Orden(models.Model):
 
     @property
     def total_examenes(self):
-        return self.detalleorden_set.count()
+        return self.detalleorden_set.count()     
+
+    def clean(self):
+        # 🚩 Reglas claras:
+        if not self.paciente and not self.donante:
+            raise ValidationError("La orden debe tener un Paciente o un Donante.")
 
 class DetalleOrden(models.Model):
     ESTADO_CHOICES = [
@@ -50,3 +70,4 @@ class DetalleOrden(models.Model):
 
     def __str__(self):
         return f"{self.orden.codigo} - {self.examen.nombre}"
+        

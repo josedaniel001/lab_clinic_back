@@ -15,6 +15,7 @@ class DetalleOrdenSerializer(serializers.ModelSerializer):
 
 class OrdenSerializer(serializers.ModelSerializer):
     paciente_nombre = serializers.CharField(source='paciente.nombre_completo', read_only=True)
+    donante_nombre = serializers.CharField(source='donante.__str__', read_only=True)
     medico_nombre = serializers.CharField(source='medico.__str__', read_only=True)
     detalles = DetalleOrdenSerializer(source='detalleorden_set', many=True, read_only=True)
     total_examenes = serializers.IntegerField(read_only=True)
@@ -29,6 +30,7 @@ class OrdenSerializer(serializers.ModelSerializer):
         model = Orden
         fields = [
             'id', 'codigo', 'paciente', 'paciente_nombre',
+            'donante', 'donante_nombre',
             'medico', 'medico_nombre', 'fecha', 'hora',
             'estado', 'detalles', 'total_examenes', 'examenes','prioridad'
         ]

@@ -11,7 +11,7 @@ class Examen(models.Model):
     preparacion_paciente = models.TextField()
     valores_referencia = models.TextField()
     estado = models.CharField(max_length=20, default="Activo")
-    fecha_creacion = models.DateField(default=timezone.now().date())
+    fecha_creacion = models.DateField(default=timezone.now)
 
     def __str__(self):
         return f"{self.nombre} ({self.codigo})"
