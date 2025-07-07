@@ -1,8 +1,8 @@
 # banco_sangre/views.py
 
 from rest_framework import viewsets
-from .models import Donante, MuestraSangre, Entrevista
-from .serializers import DonanteSerializer, MuestraSangreSerializer, EntrevistaSerializer
+from .models import Donante, MuestraSangre, Entrevista, UnidadMuestra
+from .serializers import DonanteSerializer, MuestraSangreSerializer, EntrevistaSerializer, UnidadMuestraSerializer
 
 class DonanteViewSet(viewsets.ModelViewSet):
     queryset = Donante.objects.all()
@@ -22,3 +22,7 @@ class EntrevistaViewSet(viewsets.ModelViewSet):
         'orden__detalleorden_set__examen'
     )
     serializer_class = EntrevistaSerializer
+
+class UnidadMuestraViewSet(viewsets.ModelViewSet):
+    queryset = UnidadMuestra.objects.all()
+    serializer_class = UnidadMuestraSerializer

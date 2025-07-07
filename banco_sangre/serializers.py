@@ -3,7 +3,7 @@
 from rest_framework import serializers
 from ordenes.serializers import OrdenSerializer
 from ordenes.models import Orden
-from .models import Donante, MuestraSangre,Entrevista
+from .models import Donante, MuestraSangre,Entrevista, UnidadMuestra
 
 class DonanteSerializer(serializers.ModelSerializer):
     class Meta:
@@ -42,4 +42,23 @@ class EntrevistaSerializer(serializers.ModelSerializer):
             'orden', 'orden_id', 'doctor', 'donador_de',
             'fecha', 'fecha_entrega', 'resultado',
             'observaciones', 'creado'
+        ]
+
+class UnidadMuestraSerializer(serializers.ModelSerializer):
+    dias_vigencia = serializers.IntegerField(read_only=True)
+    correlativo = serializers.CharField(read_only=True)
+
+    class Meta:
+        model = UnidadMuestra
+        fields = [
+            'id',
+            'correlativo',
+            'donante',
+            'tipo_unidad',
+            'tipo_sangre',
+            'volumen_ml',
+            'fecha_extraccion',
+            'fecha_caducidad',
+            'estado',
+            'dias_vigencia',
         ]

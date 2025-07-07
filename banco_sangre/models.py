@@ -3,6 +3,7 @@
 from django.db import models
 from django.contrib.auth import get_user_model
 from ordenes.models import Orden
+from django.utils import timezone
 
 User = get_user_model()
 
@@ -78,3 +79,54 @@ class Entrevista(models.Model):
     def __str__(self):
         return f"Entrevista {self.correlativo} - {self.primer_nombre} {self.primer_apellido}"
 
+class UnidadMuestra(models.Model):
+    ESTADO_CHOICES = [
+        ('DISPONIBLE', 'Disponible'),
+        ('RESERVADO', 'Reservado'),
+        ('VENCIDO', 'Vencido'),
+    ]
+
+    TIPO_UNIDAD_CHOICES = [
+        ('PLASMA', 'Plasma'),
+        ('PAQUETE_GLOBULAR', 'Paquete Globular'),
+        ('PLAQUETAS', 'Plaquetas'),
+        ('CRIO_PRECIPITADO', 'Crio Precipitado'),
+    ]
+
+    # El ID por defecto es AutoField
+    id = models.BigAutoField(primary_key=True)
+
+    correlativo = models.CharField(max_length=30, unique=True, blank=True)
+    donante = models.ForeignKey(Donante, on_delete=models.SET_NULL, null=True, blank=True, related_name='unidades')
+    tipo_unidad = models.CharField(max_length=50, choices=TIPO_UNIDAD_CHOICES)
+    tipo_sangre = models.CharField(max_length=5)
+    volumen_ml = models.PositiveIntegerField()
+    fecha_extraccion = models.DateField(default=timezone.now)
+    fecha_caducidad = models.DateField()
+    estado = models.CharField(max_length=20, choices=ESTADO_CHOICES, default='DISPONIBLE')
+
+    def __str__(self):
+        return f"{self.correlativo} - {self.tipo_unidad} ({self.tipo_sangre})"
+
+    @property
+    def dias_vigencia(self):
+        delta = (self.fecha_caducidad - timezone.now().date()).days
+        return delta
+
+    def save(self, *args, **kwargs):
+        creating = self._state.adding and not self.pk
+        super().save(*args, **kwargs)
+
+        if creating and not self.correlativo:
+            prefix = {
+                'PLASMA': 'PLM',
+                'PAQUETE_GLOBULAR': 'PGB',
+                'PLAQUETAS': 'PLQ',
+                'CRIO_PRECIPITADO': 'CRP',
+            }.get(self.tipo_unidad, 'UNK')
+
+            self.correlativo = f"{prefix}-{self.pk:04d}"
+            UnidadMuestra.objects.filter(pk=self.pk).update(correlativo=self.correlativo)
+
+    class Meta:
+        ordering = ['-fecha_extraccion']
