@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-q9aq$g-953ovj^6!10u9@*pv00491e9h^xmzzy26raxad%p1%k
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -127,7 +127,9 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # settings.py
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",  # Tu frontend Next.js
+    "http://192.168.1.4:3000",
+    "http://localhost:3000",    
+        # Tu frontend Next.js
 ]
 
 # Para desarrollo (TEMPORAL):

@@ -23,36 +23,15 @@ class Donante(models.Model):
     def __str__(self):
         return f"{self.primer_nombre} {self.primer_apellido} ({self.cui})"
 
-class MuestraSangre(models.Model):
-    correlativo = models.CharField(max_length=50, unique=True)
-    tipo_unidad = models.CharField(max_length=50)  # Plasma, Plaquetas, etc.
-    tipo_sangre = models.CharField(max_length=5)
-    volumen_ml = models.PositiveIntegerField()
-    fecha_extraccion = models.DateField()
-    fecha_donacion = models.DateField(null=True, blank=True)
-    fecha_validacion = models.DateField(null=True, blank=True)
-    fecha_caducidad = models.DateField()
-    lote = models.CharField(max_length=50, blank=True)
-    responsable = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
-    localizacion = models.CharField(max_length=100, blank=True)
-    condiciones_almacenamiento = models.CharField(max_length=200, blank=True)
-    serologias = models.JSONField(default=dict, blank=True)  # HIV, HepB, HepC, etc.
-    observaciones = models.TextField(blank=True)
-    estado = models.CharField(
-        max_length=20,
-        choices=[
-            ('Disponible', 'Disponible'),
-            ('Reservado', 'Reservado'),
-            ('Vencido', 'Vencido'),
-            ('Descartado', 'Descartado')
-        ]
-    )
-    donante = models.ForeignKey(Donante, on_delete=models.SET_NULL, null=True, blank=True)
-    creado = models.DateTimeField(auto_now_add=True)
+class Lote(models.Model):
+    codigo = models.CharField(max_length=50, unique=True)
+    descripcion = models.TextField(blank=True)
+    fecha_creacion = models.DateField(auto_now_add=True)
+    responsable = models.ForeignKey(get_user_model(), on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self):
-        return f"{self.correlativo} - {self.tipo_unidad} - {self.tipo_sangre}"
-    
+        return f"Lote {self.codigo}"
+ 
 # banco_sangre/models.py (continuación)
 
 class Entrevista(models.Model):
@@ -84,6 +63,7 @@ class UnidadMuestra(models.Model):
         ('DISPONIBLE', 'Disponible'),
         ('RESERVADO', 'Reservado'),
         ('VENCIDO', 'Vencido'),
+        ('DESCARTADO', 'Descartado'),
     ]
 
     TIPO_UNIDAD_CHOICES = [
@@ -93,17 +73,25 @@ class UnidadMuestra(models.Model):
         ('CRIO_PRECIPITADO', 'Crio Precipitado'),
     ]
 
-    # El ID por defecto es AutoField
     id = models.BigAutoField(primary_key=True)
 
     correlativo = models.CharField(max_length=30, unique=True, blank=True)
-    donante = models.ForeignKey(Donante, on_delete=models.SET_NULL, null=True, blank=True, related_name='unidades')
+    donante = models.ForeignKey('Donante', on_delete=models.SET_NULL, null=True, blank=True, related_name='unidades')
     tipo_unidad = models.CharField(max_length=50, choices=TIPO_UNIDAD_CHOICES)
     tipo_sangre = models.CharField(max_length=5)
     volumen_ml = models.PositiveIntegerField()
     fecha_extraccion = models.DateField(default=timezone.now)
+    fecha_donacion = models.DateField(null=True, blank=True)
+    fecha_validacion = models.DateField(null=True, blank=True)
     fecha_caducidad = models.DateField()
+    lote = models.ForeignKey(Lote, on_delete=models.SET_NULL, null=True, blank=True, related_name='unidades')
+    responsable = models.ForeignKey(get_user_model(), on_delete=models.SET_NULL, null=True, blank=True)
+    localizacion = models.CharField(max_length=100, blank=True)
+    condiciones_almacenamiento = models.CharField(max_length=200, blank=True)
+    serologias = models.JSONField(default=dict, blank=True)
+    observaciones = models.TextField(blank=True)
     estado = models.CharField(max_length=20, choices=ESTADO_CHOICES, default='DISPONIBLE')
+    creado = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"{self.correlativo} - {self.tipo_unidad} ({self.tipo_sangre})"
@@ -114,6 +102,16 @@ class UnidadMuestra(models.Model):
         return delta
 
     def save(self, *args, **kwargs):
+        if not self.lote:
+            lote_codigo = f"LOTE-{self.fecha_extraccion.strftime('%Y%m%d')}"
+            lote, created = Lote.objects.get_or_create(
+                codigo=lote_codigo,
+                defaults={
+                    'descripcion': f'Lote creado automáticamente para fecha {self.fecha_extraccion}'
+                }
+            )
+            self.lote = lote
+
         creating = self._state.adding and not self.pk
         super().save(*args, **kwargs)
 
@@ -130,3 +128,4 @@ class UnidadMuestra(models.Model):
 
     class Meta:
         ordering = ['-fecha_extraccion']
+

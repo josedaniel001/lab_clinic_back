@@ -23,7 +23,7 @@ urlpatterns = [
     path('api/', include('medicos.urls')),
     path('api/', include('sistema.urls')),  # Aquí se encuentra /health/
     path('api/', include('administracion.urls')), # /api/roles/, /api/permisos/
-    path('api/', include('banco_sangre.urls')) # /api/donantes
+    path('api/banco_sangre/', include('banco_sangre.urls')) # /api/donantes
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

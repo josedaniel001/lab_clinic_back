@@ -64,6 +64,7 @@ python manage.py cargar_roles
 
 Asignar Permisos:
 python manage.py asignar_permisos_roles
+python manage.py poblar_catalogos
 python manage.py runserver
 
 Estructura de Carpetas:

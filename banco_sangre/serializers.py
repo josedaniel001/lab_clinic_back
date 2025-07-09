@@ -3,27 +3,18 @@
 from rest_framework import serializers
 from ordenes.serializers import OrdenSerializer
 from ordenes.models import Orden
-from .models import Donante, MuestraSangre,Entrevista, UnidadMuestra
+from .models import Donante, Entrevista, UnidadMuestra, Lote
 
 class DonanteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Donante
         fields = '__all__'
 
-class MuestraSangreSerializer(serializers.ModelSerializer):
-    donante = DonanteSerializer(read_only=True)
-    donante_id = serializers.PrimaryKeyRelatedField(
-        queryset=Donante.objects.all(),
-        source='donante',
-        write_only=True,
-        required=False
-    )
-    responsable_nombre = serializers.CharField(source='responsable.username', read_only=True)
-
+class LoteSerializer(serializers.ModelSerializer):
+    #unidades = UnidadMuestraSerializer(many=True, read_only=True)
     class Meta:
-        model = MuestraSangre
+        model = Lote
         fields = '__all__'
-# banco_sangre/serializers.py
 
 class EntrevistaSerializer(serializers.ModelSerializer):
     donante = DonanteSerializer(read_only=True)
@@ -47,7 +38,13 @@ class EntrevistaSerializer(serializers.ModelSerializer):
 class UnidadMuestraSerializer(serializers.ModelSerializer):
     dias_vigencia = serializers.IntegerField(read_only=True)
     correlativo = serializers.CharField(read_only=True)
-
+    lote = LoteSerializer(read_only=True)
+    lote_id = serializers.PrimaryKeyRelatedField(
+    queryset=Lote.objects.all(),
+    source='lote',
+    write_only=True,
+    required=False
+    )
     class Meta:
         model = UnidadMuestra
         fields = [
@@ -58,7 +55,17 @@ class UnidadMuestraSerializer(serializers.ModelSerializer):
             'tipo_sangre',
             'volumen_ml',
             'fecha_extraccion',
+            'fecha_donacion',
+            'fecha_validacion',
             'fecha_caducidad',
+            'lote',
+            'lote_id',
+            'responsable',
+            'localizacion',
+            'condiciones_almacenamiento',
+            'serologias',
+            'observaciones',
             'estado',
             'dias_vigencia',
+            'creado',
         ]
