@@ -3,6 +3,7 @@
 from django.db import models
 from django.contrib.auth import get_user_model
 from ordenes.models import Orden
+from localizacion.models import Municipio
 from django.utils import timezone
 
 User = get_user_model()
@@ -19,9 +20,15 @@ class Donante(models.Model):
     fecha_nacimiento = models.DateField()
     edad = models.PositiveIntegerField()
     activo = models.BooleanField(default=True)
+    ocupacion = models.CharField(max_length=100, default='Sin especificar')
+    municipio = models.ForeignKey(Municipio, on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self):
         return f"{self.primer_nombre} {self.primer_apellido} ({self.cui})"
+    
+    @property
+    def ciudad(self):
+        return self.municipio.nombre if self.municipio else None
 
 class Lote(models.Model):
     codigo = models.CharField(max_length=50, unique=True)

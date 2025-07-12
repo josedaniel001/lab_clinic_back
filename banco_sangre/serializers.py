@@ -45,12 +45,20 @@ class UnidadMuestraSerializer(serializers.ModelSerializer):
     write_only=True,
     required=False
     )
+    donante = DonanteSerializer(read_only=True)
+    donante_id = serializers.PrimaryKeyRelatedField(
+    queryset=Donante.objects.all(),
+    source='donante',
+    write_only=True,
+    required=False
+    )
     class Meta:
         model = UnidadMuestra
         fields = [
             'id',
             'correlativo',
             'donante',
+            'donante_id',
             'tipo_unidad',
             'tipo_sangre',
             'volumen_ml',
