@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <style>
+    @page {
+      size: 10cm 10cm;
+      margin: 0;
+    }
+    * {
+    page-break-inside: avoid;
+    }
+    body {
+      margin: 0;
+      padding: 0.38cm;
+      font-family: Arial, sans-serif;
+      font-size: 8pt;
+      box-sizing: border-box;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .header-donante {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .logo {
+      width: auto;
+      height: 2cm;
+    }
+    .lab-info {
+      text-align: right;
+      font-size: 7pt;
+      line-height: 1.1;
+    }
+    .donador {
+      margin-top: 0.2cm;
+      font-weight: bold;
+      font-size: 8pt;
+    }
+    .tipo-unidad {
+      text-align: center;
+      color: red;
+      font-weight: bold;
+      font-size: 11pt;      
+      margin-right: 1.8cm;
+    }
+    .contenido {
+      display: flex;
+      justify-content: space-between;
+    }
+    .sangre-box {
+      border: 1px solid #000;
+      text-align: center;
+      padding: 0.18cm 0.08cm;
+      width: 3.8cm;
+    }
+    .sangre-symbol {
+      font-size: 24pt;
+      font-weight: bold;
+    }
+    .positivo {
+      text-align: center;
+      font-size: 12pt;
+      font-weight: bold;
+    }
+   
+    .barcode {
+      width: 3.7cm;
+      display: block;
+      margin: 0.2cm auto 0 0;
+    }
+    .tabla-sero {
+      width: 4.2cm;
+      font-size: 7pt;
+      border-collapse: collapse;
+    }
+    .tabla-sero th {
+      text-align: left;
+      border-bottom: 1px solid #000;
+    }
+    .tabla-sero td {
+      padding: 0.05cm 0;
+    }
+    .detalles {
+      margin-top: 0.2cm;
+      font-size: 7pt;
+    }
+    .apta {
+      text-align: center;
+      color: #1ca69c;
+      font-weight: bold;
+      margin-top: 0.3cm;
+    }
+    .nota {
+      font-size: 6.5pt;
+      margin-top: 0.2cm;
+      text-align: justify;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <img src="{{ config.logo.url }}" alt="Logo" class="logo">
+    <div class="lab-info">
+      <strong>Banco de Sangre Bionalisis</strong><br>
+      4ta Calle 4-45, Zona 1, Retalhuleu<br>
+      Tel.: {{ config.telefono }}
+    </div>
+  </div>
+
+  <div class="header-donante">
+    <div class="donador">Donador: {{ unidad.donante.id }}</div>
+    <div class="tipo-unidad">{{ unidad.tipo_unidad }}</div>
+  </div>
+  
+  <div class="contenido">
+    <div class="sangre-box">
+      <div class="sangre-symbol">
+       {% with ts=unidad.tipo_sangre|default_if_none:"" %}
+    {% if "+" in ts %}
+      {{ ts|slice:":-1" }} 
+    {% elif "-" in ts %}
+      {{ ts|slice:":-1" }} 
+    {% else %}
+      {{ ts }}
+    {% endif %}
+  {% endwith %}
+      </div> 
+      <div class="positivo">
+        {% if "+" in unidad.tipo_sangre %}
+          Positivo
+        {% elif "-" in unidad.tipo_sangre %}
+          Negativo
+        {% else %}
+          {{ unidad.tipo_sangre }}
+        {% endif %}
+      </div>     
+      <img src="data:image/png;base64,{{ barcode_base64 }}" class="barcode">
+    </div>
+
+    <div>
+      <table class="tabla-sero">
+        <tr>
+          <th>Estudio</th>
+          <th>Resultado</th>
+        </tr>
+        {% for estudio, resultado in serologias.items %}
+        <tr>
+          <td>{{ estudio }}</td>
+          <td>{{ resultado }}</td>
+        </tr>
+        {% endfor %}
+      </table>
+
+      <div class="detalles">
+        Volumen: {{ unidad.volumen_ml }} mL<br>
+        Anticoagulante: CPDA-1<br>
+        Fecha Extracción: {{ unidad.fecha_extraccion }}<br>
+        Fecha Caducidad: {{ unidad.fecha_caducidad }}
+      </div>
+    </div>
+  </div>
+
+  <div class="apta">APTA PARA TRANSFUNDIR</div>
+
+  <div class="nota">
+    No transfundirse en presencia de hemólisis o cualquier otro signo de deterioro.<br>
+    No mezclarse con medicamentos.<br>
+    Transfundirse a través de un filtro de 170,000 micras.
+  </div>
+</body>
+</html>

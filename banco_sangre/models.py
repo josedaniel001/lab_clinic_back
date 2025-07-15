@@ -71,6 +71,7 @@ class UnidadMuestra(models.Model):
         ('RESERVADO', 'Reservado'),
         ('VENCIDO', 'Vencido'),
         ('DESCARTADO', 'Descartado'),
+        ('TRANSFORMADA', 'Transformada'),
     ]
 
     TIPO_UNIDAD_CHOICES = [

@@ -9,6 +9,7 @@ from ordenes.models import DetalleOrden
 class ResultadoViewSet(viewsets.ModelViewSet):
     queryset = Resultado.objects.all().select_related(
         'resultado__orden__paciente',
+        'resultado__orden__donante',
         'resultado__orden__medico',
         'resultado__examen'
     ).prefetch_related('valores')
@@ -29,17 +30,24 @@ class ResultadoViewSet(viewsets.ModelViewSet):
         if hasattr(detalle, "resultado"):
             return Response({"error": "Ya existe un resultado para este examen."}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Crear resultado
+        # ✅ Solo convierte fecha_validacion si la mandas
+        fecha_validacion = data.get("fecha_validacion")
+        if fecha_validacion:
+            if isinstance(fecha_validacion, str):
+                fecha_validacion = datetime.fromisoformat(fecha_validacion).date()
+            elif isinstance(fecha_validacion, datetime):
+                fecha_validacion = fecha_validacion.date()
+
+        # ⚠️ Normalmente no deberías poner fecha_validacion si el estado es EN PROCESO.
         resultado = Resultado.objects.create(
             resultado=detalle,
             observaciones=data.get("observaciones", ""),
             validado_por=data.get("validado_por", ""),            
-            fecha_validacion=data.get("fecha_validacion"),
-            estado=data.get("estado", "PENDIENTE"),
+            fecha_validacion=fecha_validacion if fecha_validacion else None,
+            estado="EN PROCESO",
             prioridad=data.get("prioridad", "normal")
         )
 
-        # Crear detalles
         valores = data.get("valores", [])
         for valor in valores:
             ResultadoDetalle.objects.create(
@@ -50,6 +58,14 @@ class ResultadoViewSet(viewsets.ModelViewSet):
                 rango_normal=valor.get("rango_normal"),
                 estado=valor.get("estado")
             )
+
+        detalle.estado = "EN PROCESO"
+        detalle.save()
+
+        orden = detalle.orden
+        if not DetalleOrden.objects.filter(orden=orden).exclude(estado="EN PROCESO").exists():
+            orden.estado = "EN PROCESO"
+            orden.save()
 
         serializer = self.get_serializer(resultado)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
