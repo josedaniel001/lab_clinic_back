@@ -24,4 +24,4 @@ class LoteFilter(BaseGenericFilterSet):
 class EntrevistaFilter(BaseGenericFilterSet):
     class Meta:
         model = Entrevista
-        fields = '__all__'
+        exclude = ['respuestas_entrevista','respuestas_adicionales_entrevista','respuestas_medicas_adicionales','respuestas_mujeres','pdf_entrevista']

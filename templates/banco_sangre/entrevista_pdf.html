@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <style>
+    @page {
+      size: {{ config.formato_pdf|default:"A4" }};
+      margin: 2cm;
+    }
+    * {
+      page-break-inside: avoid;
+    }
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      font-size: 10pt;
+      line-height: 1.4;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      border-bottom: 2px solid #333;
+      padding-bottom: 10px;
+    }
+    .logo {
+      width: auto;
+      height: 80px;
+    }
+    .lab-info {
+      text-align: right;
+      font-size: 9pt;
+    }
+    .title {
+      text-align: center;
+      font-size: 18pt;
+      font-weight: bold;
+      margin: 20px 0;
+      color: #333;
+    }
+    .correlativo {
+      text-align: center;
+      font-size: 12pt;
+      font-weight: bold;
+      color: #666;
+      margin-bottom: 20px;
+    }
+    .section {
+      margin-bottom: 20px;
+    }
+    .section-title {
+      font-size: 12pt;
+      font-weight: bold;
+      background-color: #f0f0f0;
+      padding: 5px 10px;
+      margin-bottom: 10px;
+      border-left: 4px solid #333;
+    }
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+    .info-item {
+      display: flex;
+      margin-bottom: 5px;
+    }
+    .info-label {
+      font-weight: bold;
+      min-width: 120px;
+    }
+    .info-value {
+      margin-left: 10px;
+    }
+    .respuestas-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+    }
+    .respuesta-item {
+      margin-bottom: 8px;
+      padding: 5px;
+      border-bottom: 1px solid #eee;
+    }
+    .respuesta-pregunta {
+      font-weight: bold;
+      font-size: 9pt;
+      color: #333;
+    }
+    .respuesta-valor {
+      font-size: 9pt;
+      color: #666;
+      margin-left: 10px;
+    }
+    .firmas {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 30px;
+      padding-top: 20px;
+      border-top: 1px solid #333;
+    }
+    .firma-section {
+      text-align: center;
+      width: 45%;
+    }
+    .firma-line {
+      border-top: 1px solid #333;
+      margin-top: 40px;
+      padding-top: 5px;
+      font-size: 9pt;
+    }
+    .fecha {
+      text-align: right;
+      margin-top: 20px;
+      font-size: 9pt;
+      color: #666;
+    }
+    .estado {
+      text-align: center;
+      font-size: 14pt;
+      font-weight: bold;
+      color: #28a745;
+      margin: 20px 0;
+      padding: 10px;
+      background-color: #d4edda;
+      border: 1px solid #c3e6cb;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    {% if logo_path %}
+      <img src="file://{{ logo_path }}" alt="Logo" class="logo">
+    {% endif %}
+    <div class="lab-info">
+      <strong>Banco de Sangre Bionalisis</strong><br>
+      4ta Calle 4-45, Zona 1, Retalhuleu<br>
+      Tel.: {{ config.telefono }}
+    </div>
+  </div>
+
+  <div class="title">ENTREVISTA DE DONACIÓN DE SANGRE</div>
+  <div class="correlativo">Correlativo: {{ entrevista.correlativo }}</div>
+
+  <div class="section">
+    <div class="section-title">INFORMACIÓN PERSONAL</div>
+    <div class="info-grid">
+      <div class="info-item">
+        <span class="info-label">CUI:</span>
+        <span class="info-value">{{ entrevista.cui }}</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Nombre:</span>
+        <span class="info-value">{{ entrevista.primer_nombre }} {{ entrevista.segundo_nombre }} {{ entrevista.primer_apellido }} {{ entrevista.segundo_apellido }}</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Sexo:</span>
+        <span class="info-value">{{ entrevista.sexo }}</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Edad:</span>
+        <span class="info-value">{{ entrevista.edad }} años</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Fecha Nacimiento:</span>
+        <span class="info-value">{{ entrevista.fecha_nacimiento }}</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Lugar Nacimiento:</span>
+        <span class="info-value">{{ entrevista.lugar_nacimiento }}</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Nacionalidad:</span>
+        <span class="info-value">{{ entrevista.nacionalidad }}</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Ocupación:</span>
+        <span class="info-value">{{ entrevista.ocupacion }}</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Estado Civil:</span>
+        <span class="info-value">{{ entrevista.estado_civil }}</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Dirección:</span>
+        <span class="info-value">{{ entrevista.direccion_casa }}</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Teléfono:</span>
+        <span class="info-value">{{ entrevista.telefono_casa }}</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Correo:</span>
+        <span class="info-value">{{ entrevista.correo }}</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Tipo Sangre:</span>
+        <span class="info-value">{{ entrevista.tipo_sangre }}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">SIGNOS VITALES</div>
+    <div class="info-grid">
+      <div class="info-item">
+        <span class="info-label">Peso:</span>
+        <span class="info-value">{{ entrevista.peso }} kg</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Pulso:</span>
+        <span class="info-value">{{ entrevista.pulso }} lpm</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Temperatura:</span>
+        <span class="info-value">{{ entrevista.temperatura }} °C</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Hemoglobina:</span>
+        <span class="info-value">{{ entrevista.hemoglobina }} g/dL</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Presión Sistólica:</span>
+        <span class="info-value">{{ entrevista.presion_sistolica }} mmHg</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Presión Diastólica:</span>
+        <span class="info-value">{{ entrevista.presion_diastolica }} mmHg</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Hematocrito:</span>
+        <span class="info-value">{{ entrevista.hematocrito }}%</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">RESPUESTAS DE LA ENTREVISTA</div>
+    <div class="respuestas-grid">
+      {% for pregunta, respuesta in entrevista.respuestas_entrevista.items %}
+      <div class="respuesta-item">
+        <div class="respuesta-pregunta">{{ pregunta }}</div>
+        <div class="respuesta-valor">{{ respuesta }}</div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  {% if entrevista.respuestas_adicionales_entrevista %}
+  <div class="section">
+    <div class="section-title">RESPUESTAS ADICIONALES</div>
+    <div class="respuestas-grid">
+      {% for pregunta, respuesta in entrevista.respuestas_adicionales_entrevista.items %}
+      <div class="respuesta-item">
+        <div class="respuesta-pregunta">{{ pregunta }}</div>
+        <div class="respuesta-valor">{{ respuesta }}</div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  {% if entrevista.respuestas_medicas_adicionales %}
+  <div class="section">
+    <div class="section-title">RESPUESTAS MÉDICAS ADICIONALES</div>
+    <div class="respuestas-grid">
+      {% for pregunta, respuesta in entrevista.respuestas_medicas_adicionales.items %}
+      <div class="respuesta-item">
+        <div class="respuesta-pregunta">{{ pregunta }}</div>
+        <div class="respuesta-valor">{{ respuesta }}</div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="section">
+    <div class="section-title">INFORMACIÓN DE FLEBOTOMÍA</div>
+    <div class="info-grid">
+      <div class="info-item">
+        <span class="info-label">Hora Inicio:</span>
+        <span class="info-value">{{ entrevista.hora_inicio_flebotomia }}</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Hora Finalización:</span>
+        <span class="info-value">{{ entrevista.hora_finalizacion_flebotomia }}</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Cantidad Sangre:</span>
+        <span class="info-value">{{ entrevista.cantidad_sangre }} mL</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Reacciones Adversas:</span>
+        <span class="info-value">{% if entrevista.reacciones_adversas %}Sí{% else %}No{% endif %}</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Nombre Flebotomista:</span>
+        <span class="info-value">{{ entrevista.nombre_flebotomista }}</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Nombre Entrevistador:</span>
+        <span class="info-value">{{ entrevista.nombre_entrevistador }}</span>
+      </div>
+    </div>
+    {% if entrevista.observaciones_flebotomia %}
+    <div class="info-item">
+      <span class="info-label">Observaciones:</span>
+      <span class="info-value">{{ entrevista.observaciones_flebotomia }}</span>
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="estado">
+    Estado: {{ entrevista.estado|upper }}
+  </div>
+
+  <div class="firmas">
+    <div class="firma-section">
+      <div class="firma-line">{{ entrevista.firma_donador }}</div>
+      <div>Firma del Donante</div>
+    </div>
+    <div class="firma-section">
+      <div class="firma-line">{{ entrevista.firma_entrevistador }}</div>
+      <div>Firma del Entrevistador</div>
+    </div>
+  </div>
+
+  <div class="fecha">
+    Fecha de Entrevista: {{ entrevista.fecha }}
+  </div>
+</body>
+</html> 

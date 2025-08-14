@@ -22,7 +22,8 @@ class Donante(models.Model):
     activo = models.BooleanField(default=True)
     ocupacion = models.CharField(max_length=100, default='Sin especificar')
     municipio = models.ForeignKey(Municipio, on_delete=models.SET_NULL, null=True, blank=True)
-
+    apto_donacion=  models.BooleanField(default=False)
+    tiene_entrevista_apro= models.BooleanField(default=False)
     def __str__(self):
         return f"{self.primer_nombre} {self.primer_apellido} ({self.cui})"
     
@@ -48,19 +49,54 @@ class Entrevista(models.Model):
     segundo_nombre = models.CharField(max_length=50, blank=True)
     primer_apellido = models.CharField(max_length=50)
     segundo_apellido = models.CharField(max_length=50, blank=True)
-    direccion = models.CharField(max_length=200)
     celular = models.CharField(max_length=20, blank=True)
     sexo = models.CharField(max_length=20)
+    grupo_etnico = models.CharField(max_length=50, blank=True)
     fecha_nacimiento = models.DateField()
     edad = models.PositiveIntegerField()
-    doctor = models.CharField(max_length=100)  # Si es FK, enlázalo igual que tu Orden
-    donador_de = models.CharField(max_length=100, blank=True)
+    lugar_nacimiento = models.CharField(max_length=100)
+    nacionalidad = models.CharField(max_length=50)
+    ocupacion = models.CharField(max_length=100)
+    comunidad_linguistica = models.CharField(max_length=100, blank=True)
+    estado_civil = models.CharField(max_length=50)
+    direccion_casa = models.CharField(max_length=200)
+    telefono_casa = models.CharField(max_length=20)
+    correo = models.EmailField()
+    direccion_trabajo = models.CharField(max_length=200, blank=True)
+    telefono_trabajo = models.CharField(max_length=20, blank=True)
+    tipo_sangre = models.CharField(max_length=5)
+    peso = models.FloatField()
+    pulso = models.FloatField()
+    temperatura = models.FloatField()
+    hemoglobina = models.FloatField()
+    presion_sistolica = models.FloatField()
+    presion_diastolica = models.FloatField()
+    hematocrito = models.FloatField()
+
+    respuestas_entrevista = models.JSONField(default=dict)
+    respuestas_adicionales_entrevista = models.JSONField(default=dict)
+    respuestas_medicas_adicionales = models.JSONField(default=dict)
+    respuestas_mujeres = models.JSONField(null=True, blank=True)
+
+    consentimiento_informado = models.BooleanField(default=False)
+    nombre_entrevistador = models.CharField(max_length=100)
+    firma_donador = models.TextField()
+    firma_entrevistador = models.TextField()
+    hora_inicio_flebotomia = models.TimeField()
+    hora_finalizacion_flebotomia = models.TimeField()
+    cantidad_sangre = models.PositiveIntegerField()
+    reacciones_adversas = models.BooleanField()
+    observaciones_flebotomia = models.TextField(blank=True)
+    nombre_flebotomista = models.CharField(max_length=100)
+    firma_flebotomista = models.TextField()
+    
     fecha = models.DateField()
-    fecha_entrega = models.DateField(null=True, blank=True)
-    donante = models.ForeignKey(Donante, on_delete=models.CASCADE, related_name='entrevistas')
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
+    estado = models.CharField(max_length=50, default="pendiente")
+    pdf_entrevista = models.FileField(upload_to='entrevistas/', blank=True, null=True)
     orden = models.ForeignKey(Orden, on_delete=models.CASCADE, related_name='entrevistas')
-    observaciones = models.TextField(blank=True)
-    creado = models.DateTimeField(auto_now_add=True)
+    # Relaciones
+    donante = models.ForeignKey("Donante", on_delete=models.CASCADE, related_name='entrevistas')    
 
     def __str__(self):
         return f"Entrevista {self.correlativo} - {self.primer_nombre} {self.primer_apellido}"

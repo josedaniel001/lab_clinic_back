@@ -104,7 +104,9 @@
 </head>
 <body>
   <div class="header">
-    <img src="{{ config.logo.url }}" alt="Logo" class="logo">
+    {% if logo_path %}
+      <img src="file://{{ logo_path }}" alt="Logo" class="logo">
+    {% endif %}
     <div class="lab-info">
       <strong>Banco de Sangre Bionalisis</strong><br>
       4ta Calle 4-45, Zona 1, Retalhuleu<br>

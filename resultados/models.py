@@ -1,6 +1,10 @@
 from django.db import models
 from django.utils import timezone
+from datetime import date
 from ordenes.models import DetalleOrden
+
+def get_today_date():
+    return timezone.now().date()
 
 class Resultado(models.Model):
     ESTADO_CHOICES = [
@@ -17,9 +21,9 @@ class Resultado(models.Model):
     )
     observaciones = models.TextField(blank=True, null=True)
     validado_por = models.CharField(max_length=100, blank=True, null=True)
-    fecha_resultado = models.DateField(default=timezone.now)
+    fecha_resultado = models.DateField(default=get_today_date)
     fecha_validacion = models.DateField(blank=True, null=True)
-    estado = models.CharField(max_length=20, choices=ESTADO_CHOICES, default='pendiente')
+    estado = models.CharField(max_length=20, choices=ESTADO_CHOICES, default='PENDIENTE')
     prioridad = models.CharField(max_length=20, default='normal')
 
     def __str__(self):

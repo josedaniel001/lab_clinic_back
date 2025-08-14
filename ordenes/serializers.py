@@ -30,7 +30,7 @@ class OrdenSerializer(serializers.ModelSerializer):
         model = Orden
         fields = [
             'id', 'codigo', 'paciente', 'paciente_nombre',
-            'donante', 'donante_nombre',
+            'donante', 'donante_nombre','genero_entrevista','continuar_entrevista',
             'medico', 'medico_nombre', 'fecha', 'hora',
             'estado', 'detalles', 'total_examenes', 'examenes','prioridad'
         ]

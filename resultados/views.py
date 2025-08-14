@@ -2,6 +2,7 @@ from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from django.utils import timezone
+from datetime import datetime
 from .models import Resultado, ResultadoDetalle
 from .serializers import ResultadoSerializer
 from ordenes.models import DetalleOrden
@@ -92,6 +93,7 @@ class ResultadoViewSet(viewsets.ModelViewSet):
     def validar(self, request, pk=None):
         """
         Valida resultados: actualiza detalles, estado y la relación con DetalleOrden y Orden.
+        También actualiza el campo apto_donacion del donante si se proporciona.
         """
         resultados_data = request.data.get('resultados', [])
         id_usuario = request.data.get('id_usuario')
@@ -106,11 +108,16 @@ class ResultadoViewSet(viewsets.ModelViewSet):
             resultado_id = resultado_data.get('id')
             observaciones = resultado_data.get('observaciones', '')
             valores = resultado_data.get('valores', [])
+            donante_apto = resultado_data.get('donante_apto')  # Nuevo campo
 
             try:
                 resultado = Resultado.objects.get(id=resultado_id)
             except Resultado.DoesNotExist:
+                print(f"❌ Resultado {resultado_id} no encontrado")
                 continue
+
+            # Debug: Imprimir estado actual
+            print(f"🔍 Estado actual del resultado {resultado_id}: {resultado.estado}")
 
             # 1. Actualizar cada ResultadoDetalle
             resultado.valores.all().delete()  # limpia los existentes
@@ -124,22 +131,53 @@ class ResultadoViewSet(viewsets.ModelViewSet):
                     estado=valor.get("estado")
                 )
 
-            # 2. Actualizar Resultado
+            # 2. Actualizar Resultado - FORZAR EL CAMBIO
             resultado.observaciones = observaciones
             resultado.estado = "VALIDADO"
             resultado.validado_por = id_usuario
             resultado.fecha_validacion = timezone.now().date()
-            resultado.save()
+            
+            # Guardar y verificar inmediatamente
+            resultado.save(update_fields=['observaciones', 'estado', 'validado_por', 'fecha_validacion'])
+            
+            # Debug: Verificar que se guardó
+            resultado.refresh_from_db()
+            print(f"✅ Estado después de guardar: {resultado.estado}")
 
             # 3. Actualizar DetalleOrden relacionado
             detalle = resultado.resultado  # tu FK OneToOneField
+            print(f"🔍 Estado actual del detalle: {detalle.estado}")
             detalle.estado = "VALIDADO"
-            detalle.save()
+            detalle.save(update_fields=['estado'])
+
+            # Debug: Verificar detalle
+            detalle.refresh_from_db()
+            print(f"✅ Estado del detalle después de guardar: {detalle.estado}")
 
             # 4. Si todos los DetalleOrden están validados, actualizar Orden
             orden = detalle.orden
+            print(f"🔍 Estado actual de la orden: {orden.estado}")
+            
+            # Verificar si todos los detalles están validados
+            detalles_pendientes = DetalleOrden.objects.filter(orden=orden).exclude(estado="VALIDADO").count()
+            print(f"📊 Detalles pendientes de validar: {detalles_pendientes}")
+            
             if not DetalleOrden.objects.filter(orden=orden).exclude(estado="VALIDADO").exists():
                 orden.estado = "VALIDADO"
-                orden.save()
+                orden.save(update_fields=['estado'])
+                print(f"✅ Orden actualizada a VALIDADO")
+
+            # 5. Actualizar apto_donacion del donante y continuar_entrevista de la orden
+            if donante_apto is not None:
+                # Actualizar donante si existe
+                if orden.donante:
+                    orden.donante.apto_donacion = donante_apto
+                    orden.donante.save(update_fields=['apto_donacion'])
+                    print(f"✅ Donante actualizado: apto_donacion = {donante_apto}")
+                
+                # Actualizar continuar_entrevista en la orden
+                orden.continuar_entrevista = donante_apto
+                orden.save(update_fields=['continuar_entrevista'])
+                print(f"✅ Orden actualizada: continuar_entrevista = {donante_apto}")
 
         return Response({"message": "Resultados validados correctamente."}, status=status.HTTP_200_OK)

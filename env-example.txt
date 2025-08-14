@@ -1,0 +1,25 @@
+# Configuración de Django
+DEBUG=True
+SECRET_KEY=tu-secret-key-aqui
+ALLOWED_HOSTS=localhost,127.0.0.1
+
+# Base de datos PostgreSQL local
+DATABASE_URL=postgresql://labuser:labpass@localhost:5432/labdb
+
+# Redis (OPCIONAL para desarrollo - comentar si no tienes Redis)
+# REDIS_URL=redis://localhost:6379/0
+
+# JWT Settings
+JWT_SECRET_KEY=tu-jwt-secret-key
+JWT_ACCESS_TOKEN_LIFETIME=5
+JWT_REFRESH_TOKEN_LIFETIME=1
+
+# CORS
+CORS_ALLOWED_ORIGINS=http://localhost:3000,http://127.0.0.1:3000
+
+# Archivos estáticos y media
+STATIC_ROOT=staticfiles
+MEDIA_ROOT=media
+
+# Zona horaria
+TIME_ZONE=America/Guatemala 

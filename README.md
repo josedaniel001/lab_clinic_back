@@ -1,88 +1,154 @@
-# 🧪 Sistema de Gestión para Laboratorio Clínico
+# 🏥 Lab Clinic Backend - Docker
 
-Este proyecto es una plataforma web desarrollada con **Django** para el backend y **React (Next.js)** para el frontend. Su propósito es automatizar y facilitar el flujo completo de un laboratorio clínico: desde la recepción del paciente hasta la entrega e interpretación de resultados.
+Configuración Docker optimizada para tu proyecto Django con Redis, PostgreSQL local y Nginx.
 
----
+## 🚀 Características
 
-## 🚀 Características principales
+- **🔴 Redis**: Cache y sesiones de Django
+- **🗄️ PostgreSQL**: Base de datos local con pgAdmin4
+- **📊 Nginx**: Servidor web para archivos estáticos
+- **🐳 Docker**: Contenedores optimizados con Alpine Linux
+- **📁 Almacenamiento**: Archivos en `C:\lab_clinic\`
 
-- 🔐 Autenticación y gestión de usuarios con roles
-- ✅ Permisos personalizados para vistas y acciones específicas
-- 🧬 Registro y validación de pruebas de laboratorio
-- 📋 Administración de pacientes, médicos y órdenes clínicas
-- 📊 Módulo de reportes y estadísticas
-- 🔔 Notificaciones en el dashboard
+## 📋 Prerrequisitos
 
----
+- Docker Desktop para Windows
+- PostgreSQL instalado localmente con pgAdmin4
+- Git
 
-## ⚙️ Tecnologías utilizadas
+## 🛠️ Configuración Inicial
 
-### Backend:
-- Python 3.11+
-- Django 5.x
-- Django REST Framework
-- PostgreSQL (o SQLite en desarrollo)
+### 1. Crear carpetas en Windows
+```cmd
+setup-windows-folders.bat
+```
 
-### Frontend (repositorio separado):
-- React con Next.js
-- Tailwind CSS
-- Axios
+### 2. Configurar PostgreSQL local
+Asegúrate de que PostgreSQL esté corriendo con:
+- **Host**: localhost
+- **Puerto**: 5432
+- **Base de datos**: labdb
+- **Usuario**: labuser
+- **Contraseña**: labpass
 
----
-
-## 📦 Instalación del backend (Django)
-
-### 1. Clonar el repositorio
-
+### 3. Crear archivo de variables de entorno
 ```bash
-git clone https://github.com/tu-usuario/sistema-laboratorio.git
-cd sistema-laboratorio
+cp env.example .env
+```
 
+## 🚀 Comandos de Uso
 
-//CREAR ENTORNO VIRTUAL Y ACTIVARLO:
-  python -m venv env
-  # Activar en Windows
-  env\Scripts\activate
-  # En macOS/Linux
-  source env/bin/activate
+### Básicos
+```bash
+# Iniciar servicios
+./docker-scripts.sh start
 
-//INSTALAR DEPENDENCIAS:
-pip install -r requirements.txt
+# Parar servicios
+./docker-scripts.sh stop
 
-//APLICAR MIGRACIONES:
-python manage.py makemigrations
-python manage.py migrate
+# Ver logs
+./docker-scripts.sh logs
 
- Crear superusuario (opcional pero recomendado):
-python manage.py createsuperuser
+# Entrar al contenedor
+./docker-scripts.sh shell
+```
 
-Crear Permisos:
-python manage.py cargar_permisos
+### Redis
+```bash
+# Entrar a Redis CLI
+./docker-scripts.sh redis-cli
 
-Crear Roles:
-python manage.py cargar_roles
+# Ver logs de Redis
+./docker-scripts.sh redis-logs
 
-Asignar Permisos:
-python manage.py asignar_permisos_roles
-python manage.py poblar_catalogos
-python manage.py runserver
+# Probar conexiones
+./docker-scripts.sh test-connections
+```
 
-Estructura de Carpetas:
-backend_lab/
-├── usuarios/               # App de usuarios, roles y permisos
-├── config/                 # Configuración general del proyecto
-├── manage.py               # Utilidad de comandos Django
-├── requirements.txt        # Lista de dependencias
-└── README.md
+### Utilidades
+```bash
+# Crear superusuario
+./docker-scripts.sh superuser
 
+# Ejecutar migraciones
+./docker-scripts.sh migrate
 
+# Abrir carpeta de archivos
+./docker-scripts.sh open-media
+
+# Ver estado de servicios
+./docker-scripts.sh status
+```
+
+## 📁 Estructura de Archivos
+
+```
+C:\lab_clinic\
+├── media\
+│   ├── etiquetas\     # PDFs y etiquetas
+│   ├── logos\         # Logos del sistema
+│   └── uploads\       # Archivos subidos
+├── staticfiles\       # Archivos estáticos
+├── logs\              # Logs de la aplicación
+└── ssl\               # Certificados SSL
+```
+
+## 🔧 Servicios
+
+### **1. Redis (🔴)**
+- **Puerto**: 6379
+- **Uso**: Cache de Django y sesiones
+
+### **2. Django (🐍)**
+- **Puerto**: 8000
+- **Servidor**: Gunicorn con 3 workers
+
+### **3. Nginx (📊)**
+- **Puerto**: 80
+- **Funciones**: Archivos estáticos, media, proxy reverso
+
+### **4. PostgreSQL (🗄️)**
+- **Puerto**: 5432 (local)
+- **Acceso**: pgAdmin4
+
+## 📊 Beneficios de Redis
+
+- **Cache automático** de consultas de base de datos
+- **Sesiones en memoria** (más rápido)
+- **Mejor rendimiento** general
+- **Escalabilidad** para múltiples workers
+
+## 🔍 Troubleshooting
+
+### **Problema: Redis no conecta**
+```bash
+./docker-scripts.sh test-connections
+./docker-scripts.sh redis-logs
+```
+
+### **Problema: PostgreSQL no conecta**
+```bash
+# Verificar PostgreSQL local
+pg_isready -h localhost -p 5432
+```
+
+### **Problema: Puerto ocupado**
+```bash
+# Ver qué está usando el puerto
+netstat -ano | findstr :8000
+```
+
+## 📞 Soporte
+
+Si tienes problemas:
+
+1. **Verificar servicios**: `./docker-scripts.sh status`
+2. **Ver logs**: `./docker-scripts.sh logs`
+3. **Probar conexiones**: `./docker-scripts.sh test-connections`
+4. **Reiniciar**: `./docker-scripts.sh restart`
 
 ---
 
-
-```text
-Se agrego la BD y el POSTMAN Collection en archivo
-```markdown
-USAR WINRAR PARA DESCOMPRIMIR
+¡Tu aplicación Django está lista con Redis para cache y sesiones! 🚀
 
 

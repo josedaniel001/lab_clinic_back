@@ -42,6 +42,8 @@ class Orden(models.Model):
     estado = models.CharField(max_length=20, choices=ESTADO_CHOICES, default='PENDIENTE')
     examenes = models.ManyToManyField(Examen, through='DetalleOrden', related_name='ordenes')
     prioridad= models.CharField(max_length=40, choices=PRIORIDAD_CHOICES, default='NORMAL')
+    genero_entrevista= models.BooleanField(default=False)
+    continuar_entrevista= models.BooleanField(default=True)
     def __str__(self):
         return f"{self.codigo} - {self.paciente}"
 

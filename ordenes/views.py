@@ -9,7 +9,7 @@ from .serializers import OrdenSerializer
 from .filters import OrdenesFilter
 
 class OrdenesPagination(PageNumberPagination):
-    page_size = 5
+    page_size = 10000
     page_size_query_param = 'limit'
     page_query_param = 'page'
     max_page_size = 1000
