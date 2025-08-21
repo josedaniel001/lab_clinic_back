@@ -9,12 +9,12 @@ class UnidadMuestraFilter(BaseGenericFilterSet):
         return queryset.exclude(estado__in=valores)
     class Meta:
         model = UnidadMuestra
-        exclude = ['serologias']
+        exclude = ['serologias', 'etiqueta_pdf']  # Excluir JSONField y FileField que no se pueden filtrar directamente
 
 class DonanteFilter(BaseGenericFilterSet):
     class Meta:
         model = Donante
-        fields = '__all__'
+        exclude = ['historial_codigos']  # Excluir JSONField que no se puede filtrar directamente
 
 class LoteFilter(BaseGenericFilterSet):
     class Meta:

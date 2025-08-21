@@ -70,8 +70,10 @@
    
     .barcode {
       width: 3.7cm;
+      height: 3.35cm;
+      align-items: center;
       display: block;
-      margin: 0.2cm auto 0 0;
+      margin: 0.18cm auto 0 0;
     }
     .tabla-sero {
       width: 4.2cm;
@@ -115,7 +117,7 @@
   </div>
 
   <div class="header-donante">
-    <div class="donador">Donador: {{ unidad.donante.id }}</div>
+    <div class="donador">Donador: {{ unidad.donante.codigo_donante }}</div>
     <div class="tipo-unidad">{{ unidad.tipo_unidad }}</div>
   </div>
   

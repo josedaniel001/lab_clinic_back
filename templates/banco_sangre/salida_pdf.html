@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Salida de Unidades - {{ salida.correlativo }}</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 1cm;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            line-height: 1.4;
+            color: #000;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .header {
+            text-align: center;
+            border-bottom: 2px solid #333;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 18px;
+            color: #333;
+        }
+        
+        .header h2 {
+            margin: 5px 0;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .info-section {
+            margin-bottom: 20px;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .info-item {
+            border: 1px solid #ddd;
+            padding: 8px;
+            background-color: #f9f9f9;
+        }
+        
+        .info-label {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 3px;
+        }
+        
+        .info-value {
+            color: #000;
+        }
+        
+        .unidades-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        .unidades-table th,
+        .unidades-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+            font-size: 11px;
+        }
+        
+        .unidades-table th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+        
+        .unidades-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        
+        .firma-section {
+            margin-top: 30px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .firma-box {
+            border: 1px solid #333;
+            padding: 15px;
+            text-align: center;
+            min-height: 80px;
+        }
+        
+        .firma-label {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        
+        .firma-space {
+            border: 2px dashed #666;
+            border-radius: 5px;
+            height: 50px;
+            margin: 15px 0;
+            background-color: #fafafa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-style: italic;
+            color: #999;
+            font-size: 11px;
+        }
+        
+        .firma-space::after {
+            content: "Espacio para firma";
+        }
+        
+        .observaciones {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            background-color: #f9f9f9;
+        }
+        
+        .observaciones h4 {
+            margin: 0 0 10px 0;
+            color: #333;
+        }
+        
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 10px;
+            color: #666;
+            border-top: 1px solid #ddd;
+            padding-top: 10px;
+        }
+        
+        .logo {
+            max-width: 100px;
+            max-height: 60px;
+        }
+        
+        .total-unidades {
+            text-align: right;
+            font-weight: bold;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        {% if config and config.logo %}
+            <img src="{{ config.logo.url }}" alt="Logo" class="logo">
+        {% endif %}
+        <h1>BANCO DE SANGRE</h1>
+        <h2>COMPROBANTE DE SALIDA DE UNIDADES</h2>
+        <h3>{{ salida.correlativo }}</h3>
+    </div>
+    
+    <div class="info-section">
+        <div class="info-grid">
+            <div class="info-item">
+                <div class="info-label">Receptor:</div>
+                <div class="info-value">{{ salida.receptor }}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Cédula del Receptor:</div>
+                <div class="info-value">{{ salida.cedula_receptor }}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Médico Solicitante:</div>
+                <div class="info-value">{{ salida.medico_solicitante }}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Técnico de Salida:</div>
+                <div class="info-value">{{ salida.tecnico_salida.get_full_name|default:salida.tecnico_salida.username }}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Fecha de Salida:</div>
+                <div class="info-value">{{ salida.fecha_salida|date:"d/m/Y H:i" }}</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Estado:</div>
+                <div class="info-value">{{ salida.get_estado_display }}</div>
+            </div>
+        </div>
+    </div>
+    
+    <h3>UNIDADES ENTREGADAS</h3>
+    <table class="unidades-table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Correlativo</th>
+                <th>Tipo de Unidad</th>
+                <th>Tipo de Sangre</th>
+                <th>Volumen (ml)</th>
+                <th>Fecha Extracción</th>
+                <th>Fecha Caducidad</th>
+                <th>Lote</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for detalle in detalles %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ detalle.unidad.correlativo }}</td>
+                <td>{{ detalle.unidad.get_tipo_unidad_display }}</td>
+                <td>{{ detalle.unidad.tipo_sangre }}</td>
+                <td>{{ detalle.unidad.volumen_ml }}</td>
+                <td>{{ detalle.unidad.fecha_extraccion|date:"d/m/Y" }}</td>
+                <td>{{ detalle.unidad.fecha_caducidad|date:"d/m/Y" }}</td>
+                <td>{{ detalle.unidad.lote.codigo|default:"-" }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    <div class="total-unidades">
+        Total de Unidades: {{ salida.total_unidades }}
+    </div>
+    
+    {% if salida.observaciones %}
+    <div class="observaciones">
+        <h4>Observaciones:</h4>
+        <p>{{ salida.observaciones }}</p>
+    </div>
+    {% endif %}
+    
+    <div class="firma-section">
+        <div class="firma-box">
+            <div class="firma-label">Firma del Receptor</div>
+            <div class="firma-space"></div>
+            <div>{{ salida.receptor }}</div>
+        </div>
+        
+        <div class="firma-box">
+            <div class="firma-label">Firma del Técnico</div>
+            <div class="firma-space"></div>
+            <div>{{ salida.tecnico_salida.get_full_name|default:salida.tecnico_salida.username }}</div>
+        </div>
+    </div>
+    
+    <div class="footer">
+        <p>Este documento es un comprobante oficial de salida de unidades de muestra del banco de sangre.</p>
+        <p>Generado el {{ salida.fecha_creacion|date:"d/m/Y H:i:s" }}</p>
+        {% if config and config.nombre %}
+            <p>{{ config.nombre }}</p>
+        {% endif %}
+    </div>
+</body>
+</html>
