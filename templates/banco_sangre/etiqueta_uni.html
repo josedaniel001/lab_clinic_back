@@ -122,7 +122,7 @@
         Donador: {{ unidad.donante.id }}
       {% endif %}
     </div>
-    <div class="tipo-unidad">{{ unidad.tipo_unidad }}</div>
+    <div class="tipo-unidad">{{ unidad.get_tipo_unidad_display }}</div>
   </div>
   
   <div class="contenido">

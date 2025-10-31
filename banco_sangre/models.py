@@ -249,6 +249,8 @@ class UnidadMuestra(models.Model):
         ('PAQUETE_GLOBULAR', 'Paquete Globular'),
         ('PLAQUETAS', 'Plaquetas'),
         ('CRIO_PRECIPITADO', 'Crio Precipitado'),
+        ('PLASMA_AFERESIS', 'Plasma Aferesis'),
+        ('PLAQUETAS_AFERESIS', 'Plaquetas Aferesis'),
     ]
 
     # Constantes para tiempos de vida de cada tipo de unidad (en días)
@@ -257,6 +259,8 @@ class UnidadMuestra(models.Model):
         'PAQUETE_GLOBULAR': 42,  # Paquete Globular: 42 días
         'PLAQUETAS': 5,  # Plaquetas: 5 días
         'CRIO_PRECIPITADO': 365,  # Crio Precipitado: 1 año
+        'PLASMA_AFERESIS': 365,  # Plasma Aferesis: 365 días
+        'PLAQUETAS_AFERESIS': 5,  # Plaquetas Aferesis: 5 días
     }
 
     id = models.BigAutoField(primary_key=True)
@@ -526,6 +530,8 @@ class UnidadMuestra(models.Model):
                     'PAQUETE_GLOBULAR': 'PGB',
                     'PLAQUETAS': 'PLQ',
                     'CRIO_PRECIPITADO': 'CRP',
+                    'PLASMA_AFERESIS': 'PFA',
+                    'PLAQUETAS_AFERESIS': 'PTA',
                 }.get(self.tipo_unidad, 'UNK')
 
                 # Si tiene código de donante, usar su estructura numérica con contador
