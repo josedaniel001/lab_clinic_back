@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Informe de Resultados</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 1cm 1.5cm;
+        }
+        
+        body {
+            font-family: 'Arial', 'Helvetica', sans-serif;
+            font-size: 10px;
+            line-height: 1.2;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            background-color: #fff;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+            border-bottom: 2px solid {{ config.color_encabezado|default:"#0066cc" }};
+            padding-bottom: 10px;
+        }
+        
+        .logo-section {
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo {
+            width: 80px;
+            height: 80px;
+            margin-right: 15px;
+            object-fit: contain;
+            border-radius: 0;
+            background: none;
+        }
+        
+        .lab-info {
+            color: {{ config.color_encabezado|default:"#0066cc" }};
+        }
+        
+        .lab-name {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: {{ config.color_encabezado|default:"#0066cc" }};
+        }
+        
+        .lab-details {
+            font-size: 9px;
+            line-height: 1.3;
+            color: #666;
+        }
+        
+        .logo {
+            width: 60px;
+            height: 60px;
+            object-fit: contain;
+        }
+        
+        .professional-info {
+            text-align: right;
+            font-size: 9px;
+            color: {{ config.color_encabezado|default:"#0066cc" }};
+            line-height: 1.2;
+        }
+        /* Caja de firma en esquina */
+        .signature-corner {
+            position: fixed;
+            right: 1.2cm;
+            bottom: 1.2cm;
+            width: 6.5cm;
+            border: 1px solid #ccc;
+            padding: 8px;
+            border-radius: 4px;
+            background: #fff;
+        }
+        .signature-corner .line {
+            height: 24px;
+            border-bottom: 1px solid #666;
+            margin-bottom: 6px;
+        }
+        .signature-corner .title { font-weight: bold; font-size: 10px; color: {{ config.color_encabezado|default:"#0066cc" }}; margin-bottom: 4px; text-align: center; }
+        .signature-corner .name { font-weight: bold; color: {{ config.color_encabezado|default:"#0066cc" }}; }
+        .signature-corner .sub { font-size: 9px; color: #666; }
+
+        
+        .professional-name {
+            font-weight: bold;
+            margin-bottom: 3px;
+            font-size: 10px;
+        }
+        
+        .title {
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            color: {{ config.color_encabezado|default:"#0066cc" }};
+            margin: 15px 0 20px 0;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .patient-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 15px;
+            font-size: 10px;
+            background-color: transparent;
+            padding: 10px;
+            border-radius: 3px;
+            border: 1px solid #e9ecef;
+        }
+        
+        .info-item {
+            display: flex;
+            margin-bottom: 5px;
+        }
+        
+        .info-label {
+            font-weight: bold;
+            min-width: 90px;
+            color: {{ config.color_encabezado|default:"#0066cc" }};
+            font-size: 10px;
+        }
+        
+        .info-value {
+            flex: 1;
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .results-section {
+            margin-top: 20px;
+        }
+        
+        .section-title {
+            font-size: 14px;
+            font-weight: bold;
+            color: {{ config.color_encabezado|default:"#0066cc" }};
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            border-bottom: 1px solid {{ config.color_encabezado|default:"#0066cc" }};
+            padding-bottom: 5px;
+            letter-spacing: 0.3px;
+        }
+        
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 6px;
+            padding: 5px 8px;
+            border-bottom: 1px solid #e9ecef;
+            background-color: transparent;
+            border-radius: 2px;
+        }
+        
+        .result-label {
+            font-weight: bold;
+            color: #333;
+            font-size: 10px;
+        }
+        
+        .result-value {
+            font-weight: bold;
+            color: {{ config.color_encabezado|default:"#0066cc" }};
+            font-size: 10px;
+        }
+        
+        .serology-section {
+            background-color: transparent;
+            padding: 15px;
+            border: 2px solid {{ config.color_encabezado|default:"#0066cc" }};
+            border-radius: 5px;
+            margin-top: 15px;
+        }
+        
+        .serology-title {
+            font-size: 14px;
+            font-weight: bold;
+            color: {{ config.color_encabezado|default:"#0066cc" }};
+            margin-bottom: 15px;
+            text-align: center;
+            text-transform: uppercase;
+        }
+        
+        .serology-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        
+        .serology-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px;
+            background-color: white;
+            border-radius: 3px;
+            border: 1px solid #ddd;
+        }
+        
+        .serology-label {
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .serology-value {
+            font-weight: bold;
+            color: {{ config.color_encabezado|default:"#0066cc" }};
+        }
+        
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 10px;
+            color: #666;
+            border-top: 1px solid #ccc;
+            padding-top: 10px;
+        }
+        
+        .watermark {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-45deg);
+            font-size: 48px;
+            color: rgba(0, 102, 204, 0.1);
+            z-index: -1;
+            font-weight: bold;
+        }
+        
+        .exam-section {
+            margin-bottom: 15px;
+            padding: 12px;
+            border: 1px solid {{ config.color_encabezado|default:"#0066cc" }};
+            border-radius: 4px;
+            background-color: transparent;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+        
+        .exam-title {
+            font-size: 12px;
+            font-weight: bold;
+            color: {{ config.color_encabezado|default:"#0066cc" }};
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+        
+        .exam-date {
+            font-size: 9px;
+            color: #666;
+            margin-bottom: 8px;
+            font-style: italic;
+        }
+        
+        .result-details {
+            margin-bottom: 10px;
+        }
+        
+        .result-range {
+            font-size: 9px;
+            color: #666;
+            margin-left: 10px;
+            font-style: italic;
+        }
+        
+        .result-status {
+            font-size: 9px;
+            padding: 3px 8px;
+            border-radius: 4px;
+            margin-left: 10px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        
+        .status-normal {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .status-alto {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .status-bajo {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+    </style>
+</head>
+<body>
+    <!-- Watermark -->
+    <div class="watermark">
+        {{ config.nombre_laboratorio|default:"BANCO DE SANGRE" }}
+    </div>
+    
+    <!-- Header -->
+    <div class="header">
+        <div class="logo-section">
+            {% if config.mostrar_logo and logo_data %}
+                <img src="{{ logo_data }}" alt="Logo" class="logo" style="border-radius: 0; background: none; width: 80px; height: 80px;">
+            {% elif config.mostrar_logo %}
+                <div class="logo" style="background-color: {{ config.color_encabezado|default:'#0066cc' }}; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 12px; text-align: center; width: 80px; height: 80px;">{{ config.nombre_laboratorio|slice:":2"|upper|default:"BS" }}</div>
+            {% endif %}
+            <div class="lab-info">
+                <div class="lab-name">{{ config.nombre_laboratorio|default:"Banco de Sangre Bioanálisis, Retalhuleu" }}</div>
+                <div class="lab-details">
+                    {{ config.direccion|default:"4ta Calle 4-45 Zona 1 • Retalhuleu" }}<br>
+                    Tel. {{ config.telefono|default:"7771-2992 / 7725-3900" }}{% if config.correo %} • {{ config.correo }}{% else %} • lab-bioanalisis@hotmail.com{% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="professional-info">
+            <div class="professional-name">{{ datos.responsable_laboratorio|default:"Licda. Fabiola Esthela Garcia Axt" }}</div>
+            <div>QUÍMICA BIÓLOGA</div>
+            <div>Col. 2825</div>
+        </div>
+    </div>
+    
+    <!-- Title -->
+    <div class="title">Informe de Resultados</div>
+    
+    <!-- Patient Information -->
+    <div class="patient-info">
+        <div>
+            <div class="info-item">
+                <span class="info-label">{% if datos.tipo_paciente == 'donante' %}Código Donante{% else %}Paciente{% endif %}:</span>
+                <span class="info-value">{{ datos.codigo_donante|default:datos.orden_codigo|default:"N/A"|cut:"DON-"|cut:"ORD-" }}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Doctor:</span>
+                <span class="info-value">{{ datos.medico_nombre|default:"No especificado" }}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Fecha:</span>
+                <span class="info-value">{{ datos.fecha_orden|default:"" }}</span>
+            </div>
+        </div>
+        <div>
+            <div class="info-item">
+                <span class="info-label">Orden:</span>
+                <span class="info-value">{{ datos.orden_codigo|default:""|cut:"ORD-" }}</span>
+            </div>
+            {% if datos.nombre_cambiado %}
+            <div class="info-item">
+                <span class="info-label">Paciente:</span>
+                <span class="info-value">{{ datos.paciente_nombre|default:"N/A" }}</span>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Results Sections -->
+    <div class="results-section">
+        <!-- Exam Results -->
+        <div class="section-title">Resultados de Exámenes</div>
+        {% for examen in datos.examenes %}
+        <div class="exam-section">
+            <div class="exam-title">{{ examen.nombre }}</div>
+            {% if examen.fecha_resultado %}
+            <div class="exam-date">Fecha de Resultado: {{ examen.fecha_resultado }}</div>
+            {% endif %}
+            
+            <!-- Detalles del resultado -->
+            {% if examen.valores %}
+            <div class="result-details">
+                <!-- Mostrar tabla con rangos -->
+                <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+                    <thead>
+                        <tr style="background-color: #f8f9fa; border-bottom: 2px solid #dee2e6;">
+                            <th style="padding: 8px; text-align: left; font-weight: bold; color: #495057; border: 1px solid #dee2e6;">Parámetro</th>
+                            <th style="padding: 8px; text-align: center; font-weight: bold; color: #495057; border: 1px solid #dee2e6;">Resultado</th>
+                            <th style="padding: 8px; text-align: center; font-weight: bold; color: #495057; border: 1px solid #dee2e6;">Rango Normal</th>
+                            <th style="padding: 8px; text-align: center; font-weight: bold; color: #495057; border: 1px solid #dee2e6;">Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for valor in examen.valores %}
+                        <tr style="border-bottom: 1px solid #dee2e6;">
+                            <td style="padding: 8px; border: 1px solid #dee2e6; font-weight: bold; color: #333;">{{ valor.parametro }}</td>
+                            <td style="padding: 8px; border: 1px solid #dee2e6; text-align: center; font-weight: bold; color: #0066cc;">{{ valor.valor }} {{ valor.unidad }}</td>
+                            <td style="padding: 8px; border: 1px solid #dee2e6; text-align: center; color: #666; font-style: italic;">{{ valor.rango_normal|default:"N/A" }}</td>
+                            <td style="padding: 8px; border: 1px solid #dee2e6; text-align: center;">
+                                {% if valor.estado == 'normal' %}
+                                    <span style="background-color: #d4edda; color: #155724; padding: 3px 8px; border-radius: 4px; font-size: 9px; font-weight: bold;">NORMAL</span>
+                                {% elif valor.estado == 'alto' %}
+                                    <span style="background-color: #f8d7da; color: #721c24; padding: 3px 8px; border-radius: 4px; font-size: 9px; font-weight: bold;">ALTO</span>
+                                {% elif valor.estado == 'bajo' %}
+                                    <span style="background-color: #fff3cd; color: #856404; padding: 3px 8px; border-radius: 4px; font-size: 9px; font-weight: bold;">BAJO</span>
+                                {% elif valor.estado == 'critico' %}
+                                    <span style="background-color: #f8d7da; color: #721c24; padding: 3px 8px; border-radius: 4px; font-size: 9px; font-weight: bold;">CRÍTICO</span>
+                                {% elif valor.estado == 'anormal' %}
+                                    <span style="background-color: #f8d7da; color: #721c24; padding: 3px 8px; border-radius: 4px; font-size: 9px; font-weight: bold;">ANORMAL</span>
+                                {% else %}
+                                    <span style="color: #666; font-size: 9px;">{{ valor.estado|upper }}</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% endif %}
+            
+            {% if examen.observaciones %}
+            <div class="result-item" style="margin-left: 20px; font-style: italic; margin-top: 10px;">
+                <span class="result-label">Observaciones:</span>
+                <span class="result-value">{{ examen.observaciones }}</span>
+            </div>
+            {% endif %}
+            
+        </div>
+        {% endfor %}
+        
+        <!-- Summary -->
+        <div class="section-title">Resumen</div>
+        <div class="result-item">
+            <span class="result-label">Total de Resultados:</span>
+            <span class="result-value">{{ datos.examenes|length }}</span>
+        </div>
+        <div class="result-item">
+            <span class="result-label">Estado de la Orden:</span>
+            <span class="result-value">{{ datos.estado|default:"N/A" }}</span>
+        </div>
+        
+        {% if datos.observaciones_generales %}
+        <div class="result-item" style="margin-top: 15px; padding: 10px; background-color: #f8f9fa;">
+            <span class="result-label">Observaciones Generales:</span>
+            <span class="result-value">{{ datos.observaciones_generales }}</span>
+        </div>
+        {% endif %}
+        
+        {% if datos.notas_importantes %}
+        <div class="result-item" style="margin-top: 10px; padding: 10px; background-color: #fff3cd; border: 1px solid #ffc107;">
+            <span class="result-label">Notas Importantes:</span>
+            <span class="result-value" style="color: #856404;">{{ datos.notas_importantes }}</span>
+        </div>
+        {% endif %}
+    </div>
+    
+    <!-- Footer -->
+    <div class="footer">
+        <p>Este informe ha sido generado automáticamente el {{ datos.fecha_generacion|default:"" }}</p>
+        <p>{{ config.nombre_laboratorio|default:"BANCO DE SANGRE BIOANÁLISIS" }} - Sistema de Gestión de Muestras</p>
+        {% if config.pie_pagina %}
+        <p style="margin-top: 10px; font-style: italic;">{{ config.pie_pagina }}</p>
+        {% endif %}
+    </div>
+
+    <!-- Firma en esquina -->
+    <div class="signature-corner">
+        <div class="title">Responsable</div>
+        <div class="line"></div>
+        <div class="name">{{ datos.responsable_laboratorio|default:"Licda. Fabiola Esthela Garcia Axt" }}</div>
+        <div class="sub">QUÍMICA BIÓLOGA</div>
+        <div class="sub">Col. 2825</div>
+    </div>
+</body>
+</html>

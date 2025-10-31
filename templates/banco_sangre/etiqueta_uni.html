@@ -104,18 +104,24 @@
 </head>
 <body>
   <div class="header">
-    {% if logo_path %}
-      <img src="file://{{ logo_path }}" alt="Logo" class="logo">
+    {% if config.mostrar_logo and logo_data %}
+      <img src="{{ logo_data }}" alt="Logo" class="logo">
     {% endif %}
     <div class="lab-info">
-      <strong>Banco de Sangre Bionalisis</strong><br>
-      4ta Calle 4-45, Zona 1, Retalhuleu<br>
-      Tel.: {{ config.telefono }}
+      <strong>{{ config.nombre_laboratorio|default:"Banco de Sangre Bionalisis" }}</strong><br>
+      {{ config.direccion|default:"4ta Calle 4-45, Zona 1, Retalhuleu" }}<br>
+      Tel.: {{ config.telefono|default:"7771 2992" }}
     </div>
   </div>
 
   <div class="header-donante">
-    <div class="donador">Donador: {{ unidad.donante.id }}</div>
+    <div class="donador">
+      {% if unidad.codigo_donante_muestra %}
+        Donador: {{ unidad.codigo_donante_muestra|cut:"DON-" }}
+      {% else %}
+        Donador: {{ unidad.donante.id }}
+      {% endif %}
+    </div>
     <div class="tipo-unidad">{{ unidad.tipo_unidad }}</div>
   </div>
   

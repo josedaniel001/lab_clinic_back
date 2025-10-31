@@ -55,6 +55,37 @@ class Orden(models.Model):
         # 🚩 Reglas claras:
         if not self.paciente and not self.donante:
             raise ValidationError("La orden debe tener un Paciente o un Donante.")
+    
+    def save(self, *args, **kwargs):
+        creating = self._state.adding and not self.pk
+        super().save(*args, **kwargs)
+        
+        # Si es una nueva orden con donante, generar código de donante automáticamente
+        if creating and self.donante:
+            self._generar_codigo_donante()
+    
+    def _generar_codigo_donante(self):
+        """
+        Genera automáticamente un código de donante para esta orden.
+        """
+        try:
+            from banco_sangre.models import CodigoDonante
+            CodigoDonante.generar_nuevo_codigo(self.donante, self)
+        except Exception as e:
+            # Si hay error, no fallar la creación de la orden
+            print(f"⚠️ Error generando código de donante: {e}")
+    
+    @property
+    def codigo_donante(self):
+        """
+        Retorna el código de donante asociado a esta orden.
+        """
+        try:
+            from banco_sangre.models import CodigoDonante
+            codigo_donante = CodigoDonante.objects.filter(orden=self).first()
+            return codigo_donante.codigo if codigo_donante else None
+        except:
+            return None
 
 class DetalleOrden(models.Model):
     ESTADO_CHOICES = [

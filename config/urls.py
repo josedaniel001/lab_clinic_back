@@ -34,7 +34,9 @@ urlpatterns = [
     path('api/', include('medicos.urls')),
     path('api/', include('sistema.urls')),  # Aquí se encuentra /health/
     path('api/', include('administracion.urls')), # /api/roles/, /api/permisos/
-    path('api/banco_sangre/', include('banco_sangre.urls')) # /api/donantes
+    path('api/banco_sangre/', include('banco_sangre.urls')), # /api/donantes
+    path('api/catalogos/', include('catalogos.urls')), # /api/catalogos/unidades-parametros/
+    path('api/dashboard/', include('dashboard.urls')), # /api/dashboard/
 ]
 
 # Configuración para servir archivos estáticos en desarrollo

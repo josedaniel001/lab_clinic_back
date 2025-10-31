@@ -1,336 +1,525 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <style>
-    @page {
-      size: {{ config.formato_pdf|default:"A4" }};
-      margin: 2cm;
-    }
-    * {
-      page-break-inside: avoid;
-    }
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: Arial, sans-serif;
-      font-size: 10pt;
-      line-height: 1.4;
-    }
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-      border-bottom: 2px solid #333;
-      padding-bottom: 10px;
-    }
-    .logo {
-      width: auto;
-      height: 80px;
-    }
-    .lab-info {
-      text-align: right;
-      font-size: 9pt;
-    }
-    .title {
-      text-align: center;
-      font-size: 18pt;
-      font-weight: bold;
-      margin: 20px 0;
-      color: #333;
-    }
-    .correlativo {
-      text-align: center;
-      font-size: 12pt;
-      font-weight: bold;
-      color: #666;
-      margin-bottom: 20px;
-    }
-    .section {
-      margin-bottom: 20px;
-    }
-    .section-title {
-      font-size: 12pt;
-      font-weight: bold;
-      background-color: #f0f0f0;
-      padding: 5px 10px;
-      margin-bottom: 10px;
-      border-left: 4px solid #333;
-    }
-    .info-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-bottom: 15px;
-    }
-    .info-item {
-      display: flex;
-      margin-bottom: 5px;
-    }
-    .info-label {
-      font-weight: bold;
-      min-width: 120px;
-    }
-    .info-value {
-      margin-left: 10px;
-    }
-    .respuestas-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 15px;
-    }
-    .respuesta-item {
-      margin-bottom: 8px;
-      padding: 5px;
-      border-bottom: 1px solid #eee;
-    }
-    .respuesta-pregunta {
-      font-weight: bold;
-      font-size: 9pt;
-      color: #333;
-    }
-    .respuesta-valor {
-      font-size: 9pt;
-      color: #666;
-      margin-left: 10px;
-    }
-    .firmas {
-      display: flex;
-      justify-content: space-between;
-      margin-top: 30px;
-      padding-top: 20px;
-      border-top: 1px solid #333;
-    }
-    .firma-section {
-      text-align: center;
-      width: 45%;
-    }
-    .firma-line {
-      border-top: 1px solid #333;
-      margin-top: 40px;
-      padding-top: 5px;
-      font-size: 9pt;
-    }
-    .fecha {
-      text-align: right;
-      margin-top: 20px;
-      font-size: 9pt;
-      color: #666;
-    }
-    .estado {
-      text-align: center;
-      font-size: 14pt;
-      font-weight: bold;
-      color: #28a745;
-      margin: 20px 0;
-      padding: 10px;
-      background-color: #d4edda;
-      border: 1px solid #c3e6cb;
-      border-radius: 5px;
-    }
-  </style>
+<meta charset="utf-8">
+<title>Entrevista de Donación</title>
+<style>
+  /* Página / tipografía */
+  @page{
+  size: 8.5in 13in; /* Oficio (LatAm) */
+  margin: 6mm 6mm 6mm 6mm; /* márgenes aún más reducidos */
+  }
+  body{
+    font-family: Arial, Helvetica, sans-serif;
+    color:#2a2a2a;
+    font-size:8.5pt; /* más compacto */
+    line-height:1.18;
+    background:#fff;
+    margin:0;
+  }
+
+  /* Utilitarios */
+  .muted{ color:#6b7280; }
+  .bold{ font-weight:700; }
+  .pill{ display:inline-block; border:1px solid #e5e7eb; border-radius:999px; padding:1px 6px; font-size:9pt; background:#f9fafb; color:#374151; }
+  .hr{ height:1px; background:#e5e7eb; margin:6px 0; }
+
+  /* Header */
+  .header{
+    display:flex;
+    align-items:flex-start;
+    gap:12px;
+    padding-bottom:8px;
+    border-bottom:2px solid #0e7a32;
+    margin-bottom:8px;
+  }
+  /* Nueva fila superior en dos columnas: encabezado + recolección */
+  .top-row{ display:flex; gap:12px; align-items:stretch; }
+  .top-col{ flex:1; min-width:0; }
+  .logo-wrap{
+    width:58px; height:58px;
+    border:2px solid #0e7a32; border-radius:8px;
+    background:#f0f7f2;
+    display:flex; align-items:center; justify-content:center;
+    overflow:hidden;
+  }
+  .logo-wrap img{ max-width:100%; max-height:100%; }
+  .clinic h1{
+    margin:0; font-size:14pt; color:#0e7a32; line-height:1.05;
+  }
+  .clinic .meta{ margin-top:2px; font-size:8.5pt; color:#5b5b5b; }
+  .emergency{ color:#b91c1c; font-weight:700; font-size:10pt; margin-top:4px; }
+
+  /* Bloques de sección */
+  .section{
+    border:1px solid #e5e7eb;
+    border-radius:4px;
+    margin:4px 0; /* menos espacio vertical */
+  }
+  .section .title{
+    background:#0e7a32;
+    color:#fff;
+    font-weight:700;
+    padding:3px 6px; /* título más compacto */
+    font-size:9.5pt;
+  }
+  .section .body{ padding:4px 6px; }
+
+  /* Tablas base (sin grid) */
+  table.clean{ width:100%; border-collapse:collapse; }
+  .clean td{ padding:2px 4px; vertical-align:top; }
+  .clean th{ padding:4px; text-align:left; background:#f3f4f6; font-weight:700; border-bottom:1px solid #e5e7eb; }
+
+  /* Campos “línea” */
+  .kv{ display:flex; align-items:center; gap:4px; margin:1px 0; }
+  .kv .lbl{ min-width:120px; color:#111827; font-weight:700; }
+  .kv .val{
+    flex:1; min-height:14px; padding:2px 4px;
+    border-bottom:1px solid #22c55e; background:#fff; color:#111827;
+  }
+
+  /* Dos columnas usando tabla */
+  table.two-col{ width:100%; border-collapse:collapse; }
+  .two-col td{ width:50%; vertical-align:top; padding:0 6px; }
+
+  /* Tres columnas compactas para signos vitales */
+  table.three-col{ width:100%; border-collapse:collapse; }
+  .three-col td{ width:33.33%; vertical-align:top; padding:0 5px; }
+
+  /* Caja de recolección */
+  .collect{
+    border:2px solid #0e7a32; background:#f0f7f2;
+    padding:6px; border-radius:4px;
+  }
+  .collect .heading{ font-weight:700; color:#0e7a32; margin-bottom:6px; }
+  .collect .kv .lbl{ min-width:120px; }
+
+  /* Checkboxes (compatibles con WeasyPrint) */
+  .checkbox{
+    display:inline-block; width:12px; height:12px;
+    border:2px solid #1f2937; border-radius:2px; position:relative; top:2px;
+    margin-right:4px;
+  }
+  .checkbox.checked{ background:#0e7a32; border-color:#0e7a32; }
+  .checkbox.checked:after{
+    content:'✓'; position:absolute; top:-3px; left:1px; color:#fff; font-size:10px; font-weight:700;
+  }
+
+  /* Tabla de preguntas/respuestas */
+  table.qa{ width:100%; border-collapse:collapse; }
+  .qa th{ background:#f3f4f6; border-bottom:1px solid #e5e7eb; padding:3px 4px; font-weight:700; }
+  .qa td{ padding:3px 4px; border-bottom:1px dashed #e5e7eb; vertical-align:top; }
+  .q{ font-weight:700; }
+  .obs{ color:#6b7280; font-size:8.5pt; }
+
+  /* Firmas */
+  table.sign{ width:100%; border-collapse:collapse; margin-top:6px; }
+  .sign td{ width:33.33%; padding:0 6px; vertical-align:top; }
+  .sig-label{ color:#0e7a32; font-weight:700; margin-bottom:4px; }
+  .sig-line{ height:22px; border-bottom:1px solid #22c55e; margin-bottom:2px; }
+  .sig-name{ color:#6b7280; font-size:8.5pt; text-align:center; }
+
+  /* Impresión */
+  @media print{
+    /* permitir que el contenido fluya mejor para evitar páginas extra */
+  }
+</style>
 </head>
 <body>
-  <div class="header">
-    {% if logo_path %}
-      <img src="file://{{ logo_path }}" alt="Logo" class="logo">
-    {% endif %}
-    <div class="lab-info">
-      <strong>Banco de Sangre Bionalisis</strong><br>
-      4ta Calle 4-45, Zona 1, Retalhuleu<br>
-      Tel.: {{ config.telefono }}
-    </div>
-  </div>
 
-  <div class="title">ENTREVISTA DE DONACIÓN DE SANGRE</div>
-  <div class="correlativo">Correlativo: {{ entrevista.correlativo }}</div>
-
-  <div class="section">
-    <div class="section-title">INFORMACIÓN PERSONAL</div>
-    <div class="info-grid">
-      <div class="info-item">
-        <span class="info-label">CUI:</span>
-        <span class="info-value">{{ entrevista.cui }}</span>
+<!-- FILA SUPERIOR: Encabezado + Recolección (dos columnas) -->
+<div class="top-row">
+  <div class="top-col">
+    <div class="header" style="margin-bottom:0;border-bottom:none;padding-bottom:0;">
+      <div class="logo-wrap">
+        {% if logo_data %}
+          <img src="{{ logo_data }}" alt="Logo">
+        {% else %}
+          <span class="muted" style="font-size:8pt;text-align:center;">LOGO</span>
+        {% endif %}
       </div>
-      <div class="info-item">
-        <span class="info-label">Nombre:</span>
-        <span class="info-value">{{ entrevista.primer_nombre }} {{ entrevista.segundo_nombre }} {{ entrevista.primer_apellido }} {{ entrevista.segundo_apellido }}</span>
-      </div>
-      <div class="info-item">
-        <span class="info-label">Sexo:</span>
-        <span class="info-value">{{ entrevista.sexo }}</span>
-      </div>
-      <div class="info-item">
-        <span class="info-label">Edad:</span>
-        <span class="info-value">{{ entrevista.edad }} años</span>
-      </div>
-      <div class="info-item">
-        <span class="info-label">Fecha Nacimiento:</span>
-        <span class="info-value">{{ entrevista.fecha_nacimiento }}</span>
-      </div>
-      <div class="info-item">
-        <span class="info-label">Lugar Nacimiento:</span>
-        <span class="info-value">{{ entrevista.lugar_nacimiento }}</span>
-      </div>
-      <div class="info-item">
-        <span class="info-label">Nacionalidad:</span>
-        <span class="info-value">{{ entrevista.nacionalidad }}</span>
-      </div>
-      <div class="info-item">
-        <span class="info-label">Ocupación:</span>
-        <span class="info-value">{{ entrevista.ocupacion }}</span>
-      </div>
-      <div class="info-item">
-        <span class="info-label">Estado Civil:</span>
-        <span class="info-value">{{ entrevista.estado_civil }}</span>
-      </div>
-      <div class="info-item">
-        <span class="info-label">Dirección:</span>
-        <span class="info-value">{{ entrevista.direccion_casa }}</span>
-      </div>
-      <div class="info-item">
-        <span class="info-label">Teléfono:</span>
-        <span class="info-value">{{ entrevista.telefono_casa }}</span>
-      </div>
-      <div class="info-item">
-        <span class="info-label">Correo:</span>
-        <span class="info-value">{{ entrevista.correo }}</span>
-      </div>
-      <div class="info-item">
-        <span class="info-label">Tipo Sangre:</span>
-        <span class="info-value">{{ entrevista.tipo_sangre }}</span>
+      <div class="clinic">
+        <h1>Banco de Sangre Bioanálisis, Retalhuleu</h1>
+        <div class="meta">4ta Calle 4-45 Zona 1 • Retalhuleu</div>
+        <div class="meta">Tel. 7771-2992 / 7725-3900 • lab-bioanalisis@hotmail.com</div>
+        <div class="meta">Licda. Fabiola Esthela Garcia Axt — Químico Biólogo Col. 2825</div>
+        <div class="emergency">EMERGENCIAS 24 HRS • Tel.: 5338-0671</div>
       </div>
     </div>
   </div>
-
-  <div class="section">
-    <div class="section-title">SIGNOS VITALES</div>
-    <div class="info-grid">
-      <div class="info-item">
-        <span class="info-label">Peso:</span>
-        <span class="info-value">{{ entrevista.peso }} kg</span>
-      </div>
-      <div class="info-item">
-        <span class="info-label">Pulso:</span>
-        <span class="info-value">{{ entrevista.pulso }} lpm</span>
-      </div>
-      <div class="info-item">
-        <span class="info-label">Temperatura:</span>
-        <span class="info-value">{{ entrevista.temperatura }} °C</span>
-      </div>
-      <div class="info-item">
-        <span class="info-label">Hemoglobina:</span>
-        <span class="info-value">{{ entrevista.hemoglobina }} g/dL</span>
-      </div>
-      <div class="info-item">
-        <span class="info-label">Presión Sistólica:</span>
-        <span class="info-value">{{ entrevista.presion_sistolica }} mmHg</span>
-      </div>
-      <div class="info-item">
-        <span class="info-label">Presión Diastólica:</span>
-        <span class="info-value">{{ entrevista.presion_diastolica }} mmHg</span>
-      </div>
-      <div class="info-item">
-        <span class="info-label">Hematocrito:</span>
-        <span class="info-value">{{ entrevista.hematocrito }}%</span>
-      </div>
+  <div class="top-col">
+    <div class="collect">
+      <div class="heading">Datos de Recolección</div>
+      <table class="clean">
+        <tr>
+          <td class="kv">
+            <span class="lbl">Fecha:</span>
+            <span class="val">{{ entrevista.fecha|date:"d/m/Y" }}</span>
+          </td>
+        </tr>
+        <tr>
+          <td class="kv">
+            <span class="lbl">Lugar de Colecta:</span>
+            <span class="val">Banco de Sangre Bioanálisis</span>
+          </td>
+        </tr>
+        <tr>
+          <td class="kv">
+            <span class="lbl">No. Correlativo:</span>
+            <span class="val">{{ entrevista.correlativo|cut:"ENT-" }}</span>
+          </td>
+        </tr>
+      </table>
     </div>
   </div>
+</div>
 
-  <div class="section">
-    <div class="section-title">RESPUESTAS DE LA ENTREVISTA</div>
-    <div class="respuestas-grid">
-      {% for pregunta, respuesta in entrevista.respuestas_entrevista.items %}
-      <div class="respuesta-item">
-        <div class="respuesta-pregunta">{{ pregunta }}</div>
-        <div class="respuesta-valor">{{ respuesta }}</div>
-      </div>
-      {% endfor %}
-    </div>
+<!-- TIPO DE DONACIÓN -->
+<div class="section">
+  <div class="title">Tipo de Donación</div>
+  <div class="body">
+    <table class="clean">
+      <tr>
+        <td>
+          <span class="checkbox {% if q1_tipo_donacion == 'Voluntaria' %}checked{% endif %}"></span>
+          <span>Voluntaria</span>
+        </td>
+        <td>
+          <span class="checkbox {% if q1_tipo_donacion == 'Dirigida' or q1_tipo_donacion == 'Reposición' or q1_tipo_donacion == 'Por reposición' %}checked{% endif %}"></span>
+          <span>Dirigida</span>
+        </td>
+        <td>
+          <span class="checkbox {% if q1_tipo_donacion == 'Reposición' or q1_tipo_donacion == 'Por reposición' %}checked{% endif %}"></span>
+          <span>Por reposición</span>
+        </td>
+      </tr>
+    </table>
   </div>
+</div>
 
-  {% if entrevista.respuestas_adicionales_entrevista %}
-  <div class="section">
-    <div class="section-title">RESPUESTAS ADICIONALES</div>
-    <div class="respuestas-grid">
-      {% for pregunta, respuesta in entrevista.respuestas_adicionales_entrevista.items %}
-      <div class="respuesta-item">
-        <div class="respuesta-pregunta">{{ pregunta }}</div>
-        <div class="respuesta-valor">{{ respuesta }}</div>
-      </div>
-      {% endfor %}
-    </div>
+<!-- INFORMACIÓN BÁSICA -->
+<div class="section">
+  <div class="title">Información Básica</div>
+  <div class="body">
+    <table class="clean">
+      <tr>
+        <td class="kv"><span class="lbl">Fecha:</span><span class="val">{{ entrevista.fecha|date:"d/m/Y" }}</span></td>
+        <td class="kv"><span class="lbl">Lugar Colecta:</span><span class="val">Bioanálisis</span></td>
+        <td class="kv"><span class="lbl">No. Correlativo:</span><span class="val">{{ entrevista.correlativo|cut:"ENT-" }}</span></td>
+      </tr>
+    </table>
   </div>
-  {% endif %}
+</div>
 
-  {% if entrevista.respuestas_medicas_adicionales %}
-  <div class="section">
-    <div class="section-title">RESPUESTAS MÉDICAS ADICIONALES</div>
-    <div class="respuestas-grid">
-      {% for pregunta, respuesta in entrevista.respuestas_medicas_adicionales.items %}
-      <div class="respuesta-item">
-        <div class="respuesta-pregunta">{{ pregunta }}</div>
-        <div class="respuesta-valor">{{ respuesta }}</div>
-      </div>
-      {% endfor %}
-    </div>
+<!-- IDENTIFICACIÓN -->
+<div class="section">
+  <div class="title">Identificación</div>
+  <div class="body">
+    <table class="clean">
+      <tr>
+        <td class="kv"><span class="lbl">DPI / CUI:</span><span class="val">{{ entrevista.cui }}</span></td>
+        <td class="kv"><span class="lbl">Pasaporte:</span><span class="val">{{ entrevista.pasaporte|default:"" }}</span></td>
+      </tr>
+    </table>
   </div>
-  {% endif %}
+</div>
 
-  <div class="section">
-    <div class="section-title">INFORMACIÓN DE FLEBOTOMÍA</div>
-    <div class="info-grid">
-      <div class="info-item">
-        <span class="info-label">Hora Inicio:</span>
-        <span class="info-value">{{ entrevista.hora_inicio_flebotomia }}</span>
-      </div>
-      <div class="info-item">
-        <span class="info-label">Hora Finalización:</span>
-        <span class="info-value">{{ entrevista.hora_finalizacion_flebotomia }}</span>
-      </div>
-      <div class="info-item">
-        <span class="info-label">Cantidad Sangre:</span>
-        <span class="info-value">{{ entrevista.cantidad_sangre }} mL</span>
-      </div>
-      <div class="info-item">
-        <span class="info-label">Reacciones Adversas:</span>
-        <span class="info-value">{% if entrevista.reacciones_adversas %}Sí{% else %}No{% endif %}</span>
-      </div>
-      <div class="info-item">
-        <span class="info-label">Nombre Flebotomista:</span>
-        <span class="info-value">{{ entrevista.nombre_flebotomista }}</span>
-      </div>
-      <div class="info-item">
-        <span class="info-label">Nombre Entrevistador:</span>
-        <span class="info-value">{{ entrevista.nombre_entrevistador }}</span>
-      </div>
-    </div>
-    {% if entrevista.observaciones_flebotomia %}
-    <div class="info-item">
-      <span class="info-label">Observaciones:</span>
-      <span class="info-value">{{ entrevista.observaciones_flebotomia }}</span>
-    </div>
-    {% endif %}
+<!-- DATOS PERSONALES -->
+<div class="section">
+  <div class="title">Datos Personales</div>
+  <div class="body">
+    <table class="two-col">
+      <tr>
+        <td>
+          <div class="kv"><span class="lbl">Primer Nombre:</span><span class="val">{{ entrevista.primer_nombre }}</span></div>
+          <div class="kv"><span class="lbl">Segundo Nombre:</span><span class="val">{{ entrevista.segundo_nombre|default:"" }}</span></div>
+          <div class="kv"><span class="lbl">Primer Apellido:</span><span class="val">{{ entrevista.primer_apellido }}</span></div>
+          <div class="kv"><span class="lbl">Segundo Apellido:</span><span class="val">{{ entrevista.segundo_apellido|default:"" }}</span></div>
+          <div class="kv"><span class="lbl">Estado Civil:</span><span class="val">{{ entrevista.estado_civil|default:"Soltero" }}</span></div>
+        </td>
+        <td>
+          <div class="kv"><span class="lbl">Sexo:</span><span class="val">{{ entrevista.sexo }}</span></div>
+          <div class="kv"><span class="lbl">Grupo Étnico:</span><span class="val">{{ entrevista.grupo_etnico|default:"Mestizo" }}</span></div>
+          <div class="kv"><span class="lbl">Tipo de Sangre:</span><span class="val">{{ entrevista.tipo_sangre|default:"A+" }}</span></div>
+          <div class="kv"><span class="lbl">Fecha Nacimiento:</span><span class="val">{{ entrevista.fecha_nacimiento|date:"d/m/Y" }}</span></div>
+          <div class="kv"><span class="lbl">Edad:</span><span class="val">{{ entrevista.edad }} años</span></div>
+        </td>
+      </tr>
+    </table>
   </div>
+</div>
 
-  <div class="estado">
-    Estado: {{ entrevista.estado|upper }}
+<!-- INFORMACIÓN ADICIONAL -->
+<div class="section">
+  <div class="title">Información Adicional</div>
+  <div class="body">
+    <table class="two-col">
+      <tr>
+        <td>
+          <div class="kv"><span class="lbl">Lugar de Nacimiento:</span><span class="val">{{ entrevista.lugar_nacimiento|default:"" }}</span></div>
+          <div class="kv"><span class="lbl">Profesión u Oficio:</span><span class="val">{{ entrevista.ocupacion|default:"" }}</span></div>
+        </td>
+        <td>
+          <div class="kv"><span class="lbl">Nacionalidad:</span><span class="val">{{ entrevista.nacionalidad|default:"Guatemalteco" }}</span></div>
+          <div class="kv"><span class="lbl">Comunidad Lingüística:</span><span class="val">{{ entrevista.comunidad_linguistica|default:"" }}</span></div>
+        </td>
+      </tr>
+    </table>
   </div>
+</div>
 
-  <div class="firmas">
-    <div class="firma-section">
-      <div class="firma-line">{{ entrevista.firma_donador }}</div>
-      <div>Firma del Donante</div>
-    </div>
-    <div class="firma-section">
-      <div class="firma-line">{{ entrevista.firma_entrevistador }}</div>
-      <div>Firma del Entrevistador</div>
-    </div>
+<!-- CONTACTO -->
+<div class="section">
+  <div class="title">Información de Contacto</div>
+  <div class="body">
+    <table class="two-col">
+      <tr>
+        <td>
+          <div class="bold muted" style="margin-bottom:4px;">Datos de Casa</div>
+          <div class="kv"><span class="lbl">Dirección:</span><span class="val">{{ entrevista.direccion_casa }}</span></div>
+          <div class="kv"><span class="lbl">Teléfono:</span><span class="val">{{ entrevista.telefono_casa }}</span></div>
+          <div class="kv"><span class="lbl">Correo:</span><span class="val">{{ entrevista.correo }}</span></div>
+        </td>
+        <td>
+          <div class="bold muted" style="margin-bottom:4px;">Datos de Trabajo (opcional)</div>
+          <div class="kv"><span class="lbl">Dirección:</span><span class="val">{{ entrevista.direccion_trabajo|default:"" }}</span></div>
+          <div class="kv"><span class="lbl">Teléfono:</span><span class="val">{{ entrevista.telefono_trabajo|default:"" }}</span></div>
+        </td>
+      </tr>
+    </table>
   </div>
+</div>
 
-  <div class="fecha">
-    Fecha de Entrevista: {{ entrevista.fecha }}
+<!-- SIGNOS VITALES -->
+<div class="section">
+  <div class="title">Signos Vitales</div>
+  <div class="body">
+    <table class="three-col">
+      <tr>
+        <td><div class="kv"><span class="lbl">Peso (lbs):</span><span class="val">{{ entrevista.peso|default:"" }}</span></div></td>
+        <td><div class="kv"><span class="lbl">Pulso (bpm):</span><span class="val">{{ entrevista.pulso|default:"" }}</span></div></td>
+        <td><div class="kv"><span class="lbl">Temperatura (°C):</span><span class="val">{{ entrevista.temperatura|default:"" }}</span></div></td>
+      </tr>
+      <tr>
+        <td><div class="kv"><span class="lbl">Hemoglobina (g/dL):</span><span class="val">{{ entrevista.hemoglobina|default:"" }}</span></div></td>
+        <td><div class="kv"><span class="lbl">Hematocrito (%):</span><span class="val">{{ entrevista.hematocrito|default:"" }}</span></div></td>
+        <td><div class="kv"><span class="lbl">Presión Arterial:</span><span class="val">{{ entrevista.presion_sistolica|default:"" }}/{{ entrevista.presion_diastolica|default:"" }} mmHg</span></div></td>
+      </tr>
+    </table>
   </div>
+</div>
+
+<!-- CUESTIONARIO 1–18 -->
+<div class="section">
+  <div class="title">Cuestionario Médico (Preguntas 1–18)</div>
+  <div class="body">
+    <table class="qa">
+      <thead>
+        <tr>
+          <th style="width:68%;">Pregunta</th>
+          <th style="width:32%;">Respuesta / Observación</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td class="q">1. ¿Su entrevista de Sangre hoy es?</td><td>{{ q1_tipo_donacion }}</td></tr>
+        <tr><td class="q">2. ¿Ha participado en alguna colecta de donación voluntaria de Sangre?</td><td>{{ datos_estandarizados.respuestas_entrevista.colecta_voluntaria|default:"No" }}</td></tr>
+        <tr><td class="q">3. ¿Ha donado sangre en los últimos 3 meses?</td><td>{{ datos_estandarizados.respuestas_entrevista.donado_3_meses|default:"No" }} {% if datos_estandarizados.respuestas_adicionales_entrevista.donado_3_meses_lugar %}<span class="obs">• Lugar: {{ datos_estandarizados.respuestas_adicionales_entrevista.donado_3_meses_lugar }}</span>{% endif %}</td></tr>
+        <tr><td class="q">4. ¿Sufrió alguna reacción durante o después de la donación?</td><td>{{ datos_estandarizados.respuestas_entrevista.reaccion_donacion|default:"No" }} {% if datos_estandarizados.respuestas_adicionales_entrevista.reaccion_donacion_detalle %}<span class="obs">• {{ datos_estandarizados.respuestas_adicionales_entrevista.reaccion_donacion_detalle }}</span>{% endif %}</td></tr>
+        <tr><td class="q">5. ¿Ha sido excluido alguna vez como donante de sangre?</td><td>{{ datos_estandarizados.respuestas_entrevista.excluido_donante|default:"No" }} {% if datos_estandarizados.respuestas_adicionales_entrevista.excluido_donante_razon %}<span class="obs">• {{ datos_estandarizados.respuestas_adicionales_entrevista.excluido_donante_razon }}</span>{% endif %}</td></tr>
+        <tr><td class="q">6. ¿Cómo se siente hoy de Salud?</td><td>
+          {{ q6_salud_hoy|default:"Bien" }}
+          {% if datos_estandarizados.respuestas_adicionales_entrevista.salud_hoy_detalle %}<span class="obs">• {{ datos_estandarizados.respuestas_adicionales_entrevista.salud_hoy_detalle }}</span>{% elif respuestas_detalle.salud_hoy_detalle %}<span class="obs">• {{ respuestas_detalle.salud_hoy_detalle }}</span>{% endif %}
+        </td></tr>
+        <tr><td class="q">7. ¿En el último mes ha tenido síntomas de gripe o resfrío?</td><td>{{ datos_estandarizados.respuestas_entrevista.sintomas_gripe_resfrio|default:"No" }} {% if datos_estandarizados.respuestas_adicionales_entrevista.sintomas_gripe_resfrio_detalle %}<span class="obs">• {{ datos_estandarizados.respuestas_adicionales_entrevista.sintomas_gripe_resfrio_detalle }}</span>{% endif %}</td></tr>
+        <tr><td class="q">8. ¿Anoche, durmió mínimo 6 horas?</td><td>{{ q8_durmio_6_horas|default:"Sí" }}</td></tr>
+        <tr><td class="q">9. ¿Desayunó alimentos con grasa hoy?</td><td>
+          {{ q9_desayuno_grasa|default:"No" }}
+          {% if datos_estandarizados.respuestas_adicionales_entrevista.desayuno_grasa_detalle %}<span class="obs">• {{ datos_estandarizados.respuestas_adicionales_entrevista.desayuno_grasa_detalle }}</span>{% elif respuestas_detalle.desayuno_grasa_detalle %}<span class="obs">• {{ respuestas_detalle.desayuno_grasa_detalle }}</span>{% endif %}
+        </td></tr>
+        <tr><td class="q">10. ¿Ha tomado algún medicamento en la última semana incluso aspirina?</td><td>
+          {{ q10_medicamento_semana|default:"No" }}
+          {% if datos_estandarizados.respuestas_adicionales_entrevista.medicamento_semana_detalle %}<span class="obs">• {{ datos_estandarizados.respuestas_adicionales_entrevista.medicamento_semana_detalle }}</span>{% elif respuestas_detalle.medicamento_semana_detalle %}<span class="obs">• {{ respuestas_detalle.medicamento_semana_detalle }}</span>{% endif %}
+        </td></tr>
+        <tr><td class="q">11. ¿Ha padecido de hepatitis después de los 11 años de edad?</td><td>{{ datos_estandarizados.respuestas_entrevista.hepatitis|default:"No" }}</td></tr>
+        <tr><td class="q">12. ¿Acupuntura/tatuajes/perforaciones en el último año?</td><td>{{ datos_estandarizados.respuestas_entrevista.acupuntura_tatuajes|default:"No" }} {% if datos_estandarizados.respuestas_adicionales_entrevista.acupuntura_tatuajes_fecha %}<span class="obs">• {{ datos_estandarizados.respuestas_adicionales_entrevista.acupuntura_tatuajes_fecha }}</span>{% endif %}</td></tr>
+        <tr><td class="q">13. ¿Accidente grave o cirugía mayor en el último año?</td><td>{{ datos_estandarizados.respuestas_entrevista.accidente_cirugia|default:"No" }} {% if datos_estandarizados.respuestas_adicionales_entrevista.accidente_cirugia_detalle %}<span class="obs">• {{ datos_estandarizados.respuestas_adicionales_entrevista.accidente_cirugia_detalle }}</span>{% endif %}</td></tr>
+        <tr><td class="q">14. ¿Paludismo (malaria) en los últimos 2 años?</td><td>{{ datos_estandarizados.respuestas_entrevista.paludismo|default:"No" }} {% if datos_estandarizados.respuestas_adicionales_entrevista.paludismo_tratamiento %}<span class="obs">• Tratamiento: {{ datos_estandarizados.respuestas_adicionales_entrevista.paludismo_tratamiento }}</span>{% endif %}</td></tr>
+        <tr><td class="q">15. ¿Tratamiento dental en las últimas 72 horas?</td><td>{{ datos_estandarizados.respuestas_entrevista.tratamiento_dental_72h|default:"No" }}</td></tr>
+        <tr><td class="q">16. ¿Sudores nocturnos/fiebre/diarrea/tos &gt; 10 días?</td><td>{{ datos_estandarizados.respuestas_entrevista.sudores_fiebre_diarrea|default:"No" }}</td></tr>
+        <tr><td class="q">17. ¿Pérdida de peso injustificada o ganglios (últimos 6 meses)?</td><td>{{ datos_estandarizados.respuestas_entrevista.perdida_peso_ganglios|default:"No" }}</td></tr>
+        <tr><td class="q">18. ¿Vacunas últimos 2 meses?</td><td>
+          Influenza: {{ datos_estandarizados.respuestas_entrevista.vacuna_influenza|default:"No" }} •
+          Rabia: {{ datos_estandarizados.respuestas_entrevista.vacuna_rabia|default:"No" }} •
+          Otra: {{ datos_estandarizados.respuestas_entrevista.vacuna_otra|default:"No" }}
+          {% if datos_estandarizados.respuestas_adicionales_entrevista.vacuna_otra_cual %}<span class="obs">• {{ datos_estandarizados.respuestas_adicionales_entrevista.vacuna_otra_cual }}</span>{% endif %}
+          {% if datos_estandarizados.respuestas_adicionales_entrevista.vacuna_fecha %}<span class="obs">• {{ datos_estandarizados.respuestas_adicionales_entrevista.vacuna_fecha }}</span>{% endif %}
+        </td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% if datos_estandarizados.respuestas_adicionales_entrevista %}
+<!-- RESPUESTAS ADICIONALES (GENÉRICAS) -->
+<div class="section">
+  <div class="title">Respuestas Adicionales</div>
+  <div class="body">
+    <table class="qa">
+      <thead>
+        <tr>
+          <th style="width:60%;">Campo</th>
+          <th style="width:40%;">Detalle</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for k, v in datos_estandarizados.respuestas_adicionales_entrevista.items %}
+          {% if v %}
+          <tr>
+            <td class="q">{{ k }}</td>
+            <td>{{ v }}</td>
+          </tr>
+          {% endif %}
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  </div>
+{% elif respuestas_detalle %}
+<!-- RESPUESTAS ADICIONALES (RAW) -->
+<div class="section">
+  <div class="title">Respuestas Adicionales</div>
+  <div class="body">
+    <table class="qa">
+      <thead>
+        <tr>
+          <th style="width:60%;">Campo</th>
+          <th style="width:40%;">Detalle</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for k, v in respuestas_detalle.items %}
+          {% if v %}
+          <tr>
+            <td class="q">{{ k }}</td>
+            <td>{{ v }}</td>
+          </tr>
+          {% endif %}
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %}
+
+<!-- PREGUNTAS MÉDICAS ADICIONALES -->
+<div class="section">
+  <div class="title">Preguntas Médicas Adicionales</div>
+  <div class="body">
+    <table class="qa">
+      <tbody>
+        <tr><td class="q">19. ¿Ha padecido de tuberculosis?</td><td>{{ datos_estandarizados.respuestas_medicas_adicionales.tuberculosis|default:"No" }}</td></tr>
+        <tr><td class="q">20. ¿Padece de alguna enfermedad?</td><td>{{ datos_estandarizados.respuestas_medicas_adicionales.padece_enfermedad|default:"No" }} {% if datos_estandarizados.respuestas_medicas_adicionales.enfermedades_detalle %}<span class="obs">• {{ datos_estandarizados.respuestas_medicas_adicionales.enfermedades_detalle }}</span>{% endif %}</td></tr>
+        <tr><td class="q">21. ¿Bebidas alcohólicas en las últimas 12 horas?</td><td>{{ datos_estandarizados.respuestas_medicas_adicionales.consumido_alcohol|default:"No" }}</td></tr>
+        <tr><td class="q">22. ¿Conoce la chinche que transmite Chagas?</td><td>{{ datos_estandarizados.respuestas_medicas_adicionales.conoce_chinche_chagas|default:"No" }}</td></tr>
+        <tr><td class="q">23. ¿Ha padecido enfermedad de Chagas?</td><td>{{ datos_estandarizados.respuestas_medicas_adicionales.chagas|default:"No" }}</td></tr>
+        <tr><td class="q">24. ¿Es trabajador de salud?</td><td>{{ datos_estandarizados.respuestas_medicas_adicionales.trabajador_salud|default:"No" }}</td></tr>
+        <tr><td class="q">25. ¿Accidente laboral?</td><td>{{ datos_estandarizados.respuestas_medicas_adicionales.accidente_laboral|default:"No" }}</td></tr>
+        <tr><td class="q">26. ¿Drogas IV o inhaladas?</td><td>{{ datos_estandarizados.respuestas_medicas_adicionales.drogas_intravenosas|default:"No" }}</td></tr>
+        <tr><td class="q">27. ¿Usted o su pareja recibieron sangre/trasplante último año?</td><td>{{ datos_estandarizados.respuestas_medicas_adicionales.recibido_sangre_trasplantes|default:"No" }}</td></tr>
+        <tr><td class="q">28. ¿Prisión &gt; 72 horas en el último año?</td><td>{{ datos_estandarizados.respuestas_medicas_adicionales.estado_prision|default:"No" }}</td></tr>
+        <tr><td class="q">29. ¿Viajó a otros países en el último año?</td><td>{{ datos_estandarizados.respuestas_medicas_adicionales.viajado_extranjero|default:"No" }}</td></tr>
+        <tr><td class="q">30. En el último año ha tenido relaciones sexuales con:</td><td>{{ datos_estandarizados.respuestas_medicas_adicionales.relaciones_sexuales_riesgo|default:"Ninguna" }}</td></tr>
+        <tr><td class="q">31. ¿ITS (sífilis, gonorrea, etc.) en el último año?</td><td>{{ datos_estandarizados.respuestas_medicas_adicionales.its|default:"No" }}</td></tr>
+        <tr><td class="q">32. ¿Alguna vez se ha realizado la prueba de VIH?</td><td>{{ datos_estandarizados.respuestas_medicas_adicionales.prueba_vih|default:"No" }}</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% if entrevista.sexo == 'Femenino' %}
+<!-- EXCLUSIVO DONANTES MUJERES -->
+<div class="section">
+  <div class="title">Exclusivo Donantes Mujeres</div>
+  <div class="body">
+    <table class="qa">
+      <tbody>
+        <tr><td class="q">¿Está en su periodo menstrual?</td><td>{{ datos_estandarizados.respuestas_mujeres.periodo_menstrual|default:"No" }}</td></tr>
+        <tr><td class="q">¿Está embarazada?</td><td>{{ datos_estandarizados.respuestas_mujeres.embarazada|default:"No" }}</td></tr>
+        <tr><td class="q">¿Tuvo parto o aborto en los últimos 6 meses?</td><td>{{ datos_estandarizados.respuestas_mujeres.parto_aborto_6_meses|default:"No" }}</td></tr>
+        <tr><td class="q">¿Está dando lactancia?</td><td>{{ datos_estandarizados.respuestas_mujeres.lactancia|default:"No" }}</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %}
+
+<!-- CONSENTIMIENTO -->
+<div class="section">
+  <div class="title">Consentimiento Informado</div>
+  <div class="body">
+    <p>Yo <strong>{{ entrevista.primer_nombre }} {{ entrevista.primer_apellido }}</strong>, declaro bajo juramento que la información que he dado es verdad y que dono en forma voluntaria y no remunerada para que sea usada según sea necesario.</p>
+    <p>He sido informado de que la sangre donada ayudará a una o más personas a restablecer su salud y, como parte de los procedimientos, se realizarán pruebas de compatibilidad y detección de infecciones (Hepatitis B y C, VIH, sífilis, Chagas y otras necesarias).</p>
+    <p>En caso de resultados positivos, podré ser referido para confirmación y/o atención médica pertinente.</p>
+
+    <table class="sign">
+      <tr>
+        <td>
+          <div class="sig-label">Firma del donador</div>
+          <div class="sig-line"></div>
+          <div class="sig-name">{{ entrevista.firma_donador|default:"Nombre completo" }}</div>
+        </td>
+        <td>
+          <div class="sig-label">Firma del entrevistador</div>
+          <div class="sig-line"></div>
+          <div class="sig-name">{{ entrevista.firma_entrevistador|default:"Nombre completo" }}</div>
+        </td>
+        <td>
+          <div class="sig-label">Nombre del entrevistador</div>
+          <div class="sig-line"></div>
+          <div class="sig-name">{{ entrevista.nombre_entrevistador|default:"Nombre completo" }}</div>
+        </td>
+      </tr>
+    </table>
+  </div>
+</div>
+
+<!-- FLEBOTOMÍA -->
+<div class="section">
+  <div class="title">Flebotomía</div>
+  <div class="body">
+    <table class="two-col">
+      <tr>
+        <td>
+          <div class="kv"><span class="lbl">Hora de Inicio:</span><span class="val">{{ entrevista.hora_inicio_flebotomia|default:"--:--" }}</span></div>
+          <div class="kv"><span class="lbl">Cantidad (ml):</span><span class="val">{{ entrevista.cantidad_sangre|default:"" }}</span></div>
+          <div class="kv"><span class="lbl">Reacciones adversas:</span><span class="val">{% if entrevista.reacciones_adversas %}Sí{% else %}No{% endif %}</span></div>
+        </td>
+        <td>
+          <div class="kv"><span class="lbl">Hora de Finalización:</span><span class="val">{{ entrevista.hora_finalizacion_flebotomia|default:"--:--" }}</span></div>
+          <div class="kv"><span class="lbl">Observaciones:</span><span class="val">{{ entrevista.observaciones_flebotomia|default:"" }}</span></div>
+        </td>
+      </tr>
+    </table>
+
+    <table class="sign" style="margin-top:12px;">
+      <tr>
+        <td>
+          <div class="sig-label">Firma del Flebotomista</div>
+          <div class="sig-line"></div>
+          <div class="sig-name">{{ entrevista.firma_flebotomista|default:"Firma" }}</div>
+        </td>
+        <td>
+          <div class="sig-label">Nombre del Flebotomista</div>
+          <div class="sig-line"></div>
+          <div class="sig-name">{{ entrevista.nombre_flebotomista|default:"Nombre completo" }}</div>
+        </td>
+        <td>
+          <!-- Columna vacía para mantener el formato de 3 columnas -->
+        </td>
+      </tr>
+    </table>
+  </div>
+</div>
+
 </body>
-</html> 
+</html>

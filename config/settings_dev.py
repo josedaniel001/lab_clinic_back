@@ -28,9 +28,9 @@ DATABASES = {
     }
 }
 
-print("🔧 Configuración de desarrollo activada")
-print("📝 Cache: Memoria local")
-print("💾 Sessions: Base de datos")
-print("🗄️  Database: PostgreSQL local")
-print("🚫 Redis: Deshabilitado")
-print("🌐 Servidor: runserver") 
+# print("🔧 Configuración de desarrollo activada")
+# print("📝 Cache: Memoria local")
+# print("💾 Sessions: Base de datos")
+# print("🗄️  Database: PostgreSQL local")
+# print("🚫 Redis: Deshabilitado")
+# print("🌐 Servidor: runserver") 
