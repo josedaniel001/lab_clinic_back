@@ -1,3 +1,4 @@
+{% load resultado_filters %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -7,7 +8,11 @@
     <style>
         @page {
             size: A4;
-            margin: 1cm 1.5cm;
+            margin: 1cm 1.5cm 3cm 1.5cm;
+            @bottom-right {
+                content: element(footer);
+                margin-bottom: 2.5cm;
+            }
         }
         
         body {
@@ -18,6 +23,22 @@
             margin: 0;
             padding: 0;
             background-color: #fff;
+        }
+        
+        /* Ocultar cualquier footer */
+        .footer,
+        footer,
+        [class*="footer"],
+        [id*="footer"],
+        p:contains("generado"),
+        p:contains("Sistema de Gestión") {
+            display: none !important;
+            visibility: hidden !important;
+            height: 0 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            font-size: 0 !important;
+            line-height: 0 !important;
         }
         
         .header {
@@ -72,16 +93,18 @@
             color: {{ config.color_encabezado|default:"#0066cc" }};
             line-height: 1.2;
         }
-        /* Caja de firma en esquina */
+        /* Caja de firma como pie de página fijo */
         .signature-corner {
-            position: fixed;
-            right: 1.2cm;
-            bottom: 1.2cm;
+            position: running(footer);
             width: 6.5cm;
+            margin-left: auto;
+            margin-right: 0;
             border: 1px solid #ccc;
             padding: 8px;
             border-radius: 4px;
-            background: #fff;
+            background: transparent !important;
+            box-shadow: none;
+            text-align: right;
         }
         .signature-corner .line {
             height: 24px;
@@ -141,6 +164,8 @@
         
         .results-section {
             margin-top: 20px;
+            margin-bottom: 0;
+            page-break-inside: avoid;
         }
         
         .section-title {
@@ -216,15 +241,6 @@
         .serology-value {
             font-weight: bold;
             color: {{ config.color_encabezado|default:"#0066cc" }};
-        }
-        
-        .footer {
-            margin-top: 30px;
-            text-align: center;
-            font-size: 10px;
-            color: #666;
-            border-top: 1px solid #ccc;
-            padding-top: 10px;
         }
         
         .watermark {
@@ -416,10 +432,10 @@
             </div>
             {% endif %}
             
-            {% if examen.observaciones %}
+            {% if examen.observaciones|sin_observaciones_reversion %}
             <div class="result-item" style="margin-left: 20px; font-style: italic; margin-top: 10px;">
                 <span class="result-label">Observaciones:</span>
-                <span class="result-value">{{ examen.observaciones }}</span>
+                <span class="result-value">{{ examen.observaciones|sin_observaciones_reversion }}</span>
             </div>
             {% endif %}
             
@@ -452,16 +468,7 @@
         {% endif %}
     </div>
     
-    <!-- Footer -->
-    <div class="footer">
-        <p>Este informe ha sido generado automáticamente el {{ datos.fecha_generacion|default:"" }}</p>
-        <p>{{ config.nombre_laboratorio|default:"BANCO DE SANGRE BIOANÁLISIS" }} - Sistema de Gestión de Muestras</p>
-        {% if config.pie_pagina %}
-        <p style="margin-top: 10px; font-style: italic;">{{ config.pie_pagina }}</p>
-        {% endif %}
-    </div>
-
-    <!-- Firma en esquina -->
+    <!-- Firma como pie de página -->
     <div class="signature-corner">
         <div class="title">Responsable</div>
         <div class="line"></div>

@@ -15,6 +15,37 @@ import os
 from django.conf import settings
 from sistema.models import ConfiguracionLaboratorio
 import base64
+import re
+
+def limpiar_observaciones_reversion(observaciones):
+    """
+    Elimina las observaciones de reversión del texto.
+    Las observaciones de reversión tienen el formato:
+    [REVERTIDO] fecha - Usuario: usuario - Motivo: motivo
+    
+    Mantiene solo las observaciones normales del resultado.
+    """
+    if not observaciones:
+        return observaciones
+    
+    if not isinstance(observaciones, str):
+        observaciones = str(observaciones)
+    
+    # Patrón para encontrar observaciones de reversión
+    # Formato: \n[REVERTIDO] fecha - Usuario: usuario - Motivo: motivo
+    # También puede estar al inicio del texto
+    # Busca líneas que comiencen con [REVERTIDO] y todo lo que siga hasta el final de la línea
+    patron = r'\n?\[REVERTIDO\][^\n]*(?:\n|$)'
+    
+    # Eliminar todas las observaciones de reversión (puede haber múltiples)
+    texto_limpio = re.sub(patron, '', observaciones, flags=re.MULTILINE)
+    
+    # Limpiar líneas vacías múltiples y espacios en blanco al inicio y final
+    texto_limpio = re.sub(r'\n\s*\n+', '\n', texto_limpio)  # Reemplazar múltiples saltos de línea por uno solo
+    texto_limpio = texto_limpio.strip()
+    
+    # Si quedó vacío después de limpiar, retornar cadena vacía
+    return texto_limpio if texto_limpio else ""
 
 def get_logo_data(config, request=None):
     """Obtiene el logo del laboratorio en formato base64 o URL"""
@@ -1109,7 +1140,12 @@ class ResultadoViewSet(viewsets.ModelViewSet):
             })
         
         # Obtener todos los resultados de la orden
-        detalles = DetalleOrden.objects.filter(orden=orden).select_related('examen', 'resultado')
+        detalles = (
+            DetalleOrden.objects
+            .filter(orden=orden)
+            .select_related('examen', 'resultado')
+            .order_by('examen__codigo', 'id')
+        )
         
         examenes = []
         for detalle in detalles:
@@ -1127,10 +1163,13 @@ class ResultadoViewSet(viewsets.ModelViewSet):
                         "estado": valor.estado
                     })
                 
+                # Limpiar observaciones de reversión antes de agregar al PDF
+                observaciones_limpias = limpiar_observaciones_reversion(resultado.observaciones or "")
+                
                 examenes.append({
                     "nombre": detalle.examen.nombre,
                     "valores": valores,
-                    "observaciones": resultado.observaciones or "",
+                    "observaciones": observaciones_limpias,
                     "fecha_resultado": resultado.fecha_resultado.strftime('%d/%m/%Y') if resultado.fecha_resultado else None,
                     "fecha_validacion": resultado.fecha_validacion.strftime('%d/%m/%Y') if resultado.fecha_validacion else None,
                     "validado_por": resultado.validado_por or ""

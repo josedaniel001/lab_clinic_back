@@ -1,3 +1,4 @@
+{% load resultado_filters %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -7,7 +8,16 @@
     <style>
         @page {
             size: A4;
-            margin: 1cm 1.5cm;
+            margin: 1cm 1.5cm 3cm 1.5cm;
+            @bottom-center {
+                content: "";
+            }
+            @bottom-left {
+                content: "";
+            }
+            @bottom-right {
+                content: "";
+            }
         }
         
         body {
@@ -16,8 +26,24 @@
             line-height: 1.2;
             color: #333;
             margin: 0;
-            padding: 0;
+            padding: 0 0 4cm 0;
             background-color: #fff;
+        }
+        
+        /* Ocultar cualquier footer */
+        .footer,
+        footer,
+        [class*="footer"],
+        [id*="footer"],
+        p:contains("generado"),
+        p:contains("Sistema de Gestión") {
+            display: none !important;
+            visibility: hidden !important;
+            height: 0 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            font-size: 0 !important;
+            line-height: 0 !important;
         }
         
         .header {
@@ -121,6 +147,8 @@
         
         .results-section {
             margin-top: 20px;
+            margin-bottom: 3cm;
+            page-break-inside: avoid;
         }
         
         .section-title {
@@ -198,15 +226,6 @@
             color: {{ config.color_encabezado|default:"#0066cc" }};
         }
         
-        .footer {
-            margin-top: 30px;
-            text-align: center;
-            font-size: 10px;
-            color: #666;
-            border-top: 1px solid #ccc;
-            padding-top: 10px;
-        }
-        
         .watermark {
             position: fixed;
             top: 50%;
@@ -279,6 +298,40 @@
             background-color: #fff3cd;
             color: #856404;
             border: 1px solid #ffeaa7;
+        }
+        
+        /* Caja de firma en esquina */
+        .signature-corner {
+            position: fixed;
+            right: 1.2cm;
+            bottom: 0.8cm;
+            width: 6.5cm;
+            border: 1px solid #ccc;
+            padding: 8px;
+            border-radius: 4px;
+            background: transparent !important;
+            z-index: 10;
+            box-shadow: none;
+        }
+        .signature-corner .line {
+            height: 24px;
+            border-bottom: 1px solid #666;
+            margin-bottom: 6px;
+        }
+        .signature-corner .title { 
+            font-weight: bold; 
+            font-size: 10px; 
+            color: {{ config.color_encabezado|default:"#0066cc" }}; 
+            margin-bottom: 4px; 
+            text-align: center; 
+        }
+        .signature-corner .name { 
+            font-weight: bold; 
+            color: {{ config.color_encabezado|default:"#0066cc" }}; 
+        }
+        .signature-corner .sub { 
+            font-size: 9px; 
+            color: #666; 
         }
     </style>
 </head>
@@ -368,10 +421,10 @@
             </div>
             {% endif %}
             
-            {% if resultado.observaciones %}
+            {% if resultado.observaciones|sin_observaciones_reversion %}
             <div class="result-item" style="margin-left: 20px; font-style: italic; margin-top: 10px;">
                 <span class="result-label">Observaciones:</span>
-                <span class="result-value">{{ resultado.observaciones }}</span>
+                <span class="result-value">{{ resultado.observaciones|sin_observaciones_reversion }}</span>
             </div>
             {% endif %}
             
@@ -390,13 +443,13 @@
         </div>
     </div>
     
-    <!-- Footer -->
-    <div class="footer">
-        <p>Este informe ha sido generado automáticamente el {{ fecha_actual|date:"d/m/Y H:i" }}</p>
-        <p>{{ config.nombre_laboratorio|default:"BANCO DE SANGRE BIOANÁLISIS" }} - Sistema de Gestión de Muestras</p>
-        {% if config.pie_pagina %}
-        <p style="margin-top: 10px; font-style: italic;">{{ config.pie_pagina }}</p>
-        {% endif %}
+    <!-- Firma en esquina -->
+    <div class="signature-corner">
+        <div class="title">Responsable</div>
+        <div class="line"></div>
+        <div class="name">Licda. Fabiola Esthela Garcia Axt</div>
+        <div class="sub">QUÍMICA BIÓLOGA</div>
+        <div class="sub">Col. 2825</div>
     </div>
 </body>
 </html>
